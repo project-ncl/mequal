@@ -1,0 +1,13 @@
+= Mequal
+:navtitle: Welcome
+
+> In policy we trust!
+
+== About
+
+TBD
+
+== Resources
+
+* xref:getting-started:index.adoc[Getting Started]
+* xref:handbook:index.adoc[Handbook]
