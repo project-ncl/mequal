@@ -1,0 +1,26 @@
+= Mequal
+
+Manifest Evaluation and Quality tooling
+
+> In policy we trust!
+
+== About
+
+NOTE: Mequal is in very early stage. Over the next weeks this repository will be populated
+with documentation and examples.
+
+Mequal's project goal is to *improve quality and security of software*.
+
+It is done by evaluating policies against manifests (BOMs). The outcome
+of the evaluation can be used to make decisions whether the software
+quality is good or not.
+
+Policies can be freely defined. But we will help with guidelines.
+Our aim is to standardize and categorize policies. Mequal will come
+with a curated list of policies to get you started as well!
+
+Curious?
+
+== Documentation
+
+TBD
