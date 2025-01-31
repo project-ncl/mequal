@@ -23,4 +23,4 @@ Curious?
 
 == Documentation
 
-TBD
+Documentation is link:https://project-ncl.github.io/mequal/[available here].
