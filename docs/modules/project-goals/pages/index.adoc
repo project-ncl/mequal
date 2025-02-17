@@ -1,0 +1,7 @@
+= Project Goals
+
+With the Mequal project we have 3 high-level goals we’d like to achieve:
+
+. Validation
+. Evaluation
+. Policy Authoring
