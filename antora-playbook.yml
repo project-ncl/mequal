@@ -25,6 +25,10 @@ content:
       branches: HEAD
       start_path: docs
       edit_url: false
+asciidoc:
+  attributes:
+    image-run-script: https://github.com/project-ncl/mequal
+    local-run-script: https://github.com/project-ncl/mequal
 ui:
   supplemental_files: ./docs/ui
   bundle:
