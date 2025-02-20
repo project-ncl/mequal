@@ -20,28 +20,28 @@ $ cat input/good/sbom-example.json | podman run -i --rm mequal-testing
 
 [TIP]
 ====
-The {image-run-script}[./container_files/image-run.sh] script can be edited to decide what should be ran inside the container. Can decide to do evaluations using Conforma or using the OPA client embedded within it, running unit tests, change evaluation parameters, etc.
+The {image-run-script}[./container_files/image-run.sh] script can be edited to decide what should be ran inside the container. It can do evaluations using Conforma or using the OPA client embedded within it, running unit tests, change evaluation parameters, etc.
 ====
 
 === b. Run Policy Evaluation Locally
 
-To run the policies locally, we'll need to use the https://github.com/enterprise-contract/ec-cli[Conforma CLI Tool], which is an OPA-based tool that does the policy evaluations inside the container. It also has the OPA CLI Tool embedded within it in case we want to do OPA evaluations, but we can also opt to download the https://github.com/open-policy-agent/opa[OPA CLI Tool separately from here] if we'd like to use a different OPA version.
+To run the policies locally, we'll need to use the https://github.com/enterprise-contract/ec-cli[Conforma/EC CLI Tool], which is an OPA-based tool that does the policy evaluations inside the container. It also has the OPA CLI Tool embedded within it in case we want to do OPA evaluations, but we can also opt to download the https://github.com/open-policy-agent/opa[OPA CLI Tool separately from here] if we'd like to use a different OPA version.
 
 [TIP]
 ====
-Conforma formerly known as *Enterprise Contract* which is where the EC abbreviations in the code and documentation comes from. The download and use of these binaries can be fetched and used automatically using the {local-run-script}[./runme.sh] script in the repo.
+Conforma is formerly known as *Enterprise Contract*, which is where the EC abbreviations in the code and documentation comes from. These binaries can be fetched and used automatically using the {local-run-script}[./runme.sh] script in the repo.
 ====
 
-Mequal currently relies on helper functions available from https://github.com/enterprise-contract/ec-policies[Conforma/EC policies] in order to generate better output from the policy evaluations and unit testing. *To run the policy evaluations successfully with OPA, we need to download these manually and put them in place.* This can already be done automatically using the {local-run-script}[./runme.sh] script in the repo. *For evaluation using Conforma/EC, these functions already fetched in the background, so it can immediately be used to start evaluating policies locally.*
+Mequal currently relies on helper functions available from https://github.com/enterprise-contract/ec-policies[Conforma/EC policies] in order to generate better output from the policy evaluations and unit testing. *To run the policy evaluations successfully with OPA, we need to download these manually and put them in place.* This can already be done automatically using the {local-run-script}[./runme.sh] script in the repo. *For evaluation using Conforma/EC, these functions are already fetched in the background, so it can immediately be used to start evaluating policies locally.*
 
-By running the script mentioned above, we can immediate download the necessary binaries and helper functions, and start running our policy evaluations locally:
+By running the script mentioned above, we can immediately download the necessary binaries and helper functions, and start running our policy evaluations locally:
 
 [source,bash]
 ----
 $ bash ./runme.sh
 ----
 
-The script contains commands related to running policy evaluations or unit tests, and can be a reference for running policy evaluations. It can be used as a playground to test out different evaluation commands and parameters.
+This script contains commands related to running policy evaluations or unit tests, and can be a reference for running policy evaluations. It can be used as a playground to test out different evaluation commands and parameters.
 
 == 3. What are Policies? How do I Write Them?
 

@@ -142,14 +142,14 @@ deny contains result if {
 <4> *Import the helper functions* from EC/Conforma
 <5> Can *import functions* from other places
 <6> Can add to ensure *rego v1 compatibility*
-<7> All *prerequisite conditions* needed for the evaluation to be performed go in this function
+<7> All *prerequisite conditions* needed for the evaluation to be performed go into this function
 <8> Each rule within a policy requires a *title* as metadata
 <9> Each rule within a policy requires a *description* as metadata
 <10> Each rule within a policy requires an *ID* as metadata
 <11> Each rule within a policy requires a *failure message* as metadata. '%s' can be used within the string in order to pass variables to it.
-<12> Before each rule, the *prerequisite conditions* functions should be called to ensure evaluation is only done on inputes that satisfy the prerequisites.
+<12> Before each rule, the *prerequisite conditions* functions should be called to ensure evaluation is only done on inputs that satisfy the prerequisites.
 <13> *Helper function* for passing information as output.
-<14> String values can be passed into the empty array in the helper function to populate the '%s' variables in the failure_msg metadata
+<14> String values can be passed into the empty array parameter of the helper function to populate the '%s' variables in the failure_msg metadata
 <15> A *custom object* can be passed as part of the output. In this case it would be "{"custom_data": "example_value"}"
 
 
