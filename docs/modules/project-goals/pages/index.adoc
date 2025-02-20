@@ -1,5 +1,7 @@
 = Project Goals
 
+include::ROOT:partial$wip.adoc[]
+
 With the Mequal project we have 3 high-level goals we’d like to achieve:
 
 . Validation
