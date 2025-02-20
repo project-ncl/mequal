@@ -4,7 +4,7 @@ include::ROOT:partial$wip.adoc[]
 
 == 1. Basic Concepts for Policy Evaluation
 
-This section we'll dive into the basic concepts of policy evaluation at a high-level.
+In this section we'll dive into the basic concepts of policy evaluation at a high-level.
 
 === a. Policies
 
@@ -12,7 +12,7 @@ A policy is a set of rules that are evaluated against a specific input. In our c
 
 === b. Rules
 
-A rules is a self-contained condition that belongs to a policy. Rules are what make up each policy and can be considered the smallest unit of evaluation.
+A rule is a self-contained condition that belongs to a policy. Rules are what make up each policy and can be considered the smallest unit of evaluation.
 
 === c. Prerequisites
 
@@ -33,13 +33,13 @@ In order to represent a policy as code that is compatible for EC/Conforma/OPA ev
 
 The Conforma/EC tool used by Mequal relies on the usage of policy configurations that can point to a specific set of SCM repositories containing policies, so the tooling can fetch them for evaluation in the background. It also supports to include and exclude certain policies from being evaluated directly from the configuration file. It can also exist and be maintained as a Kubernetes resource.
 
-=== g. Evaluation
+=== g. Evaluation Results
 
-An evaluation the output produced by EC/Conforma/OPA with Mequal after running a set of policies against a specific input. It can be in either json or yaml format and contains what violations or warnings have been raised against these policies for the input. This evaluation can be context-specific depending on the policies it runs and the type of input that is passed into the SBOM. (For example different policy checks for different SBOM versions, SBOM types, etc.)
+The evaluation results are the output produced by EC/Conforma/OPA after running a set of policies against a specific input. They can can be in either json or yaml format and contain what violations or warnings have been raised against these policies for the input. The results can be context-specific depending on the policies we run. (For example different policy checks for different SBOM versions, SBOM types, etc.)
 
-The violations help with our validation of the SBOMs to make sure they comply with the policy and fail the evaluation if there are any policies the SBOM doesn't comply with. These are more related to the basic important rules the SBOM must comply with to be considered valid.
+The violations help with the validation of the SBOMs to make sure they comply with the policy and fail if there are any policies the SBOM doesn't comply with. These are more related to the basic important rules the SBOM must comply with to be considered valid.
 
-The warnings are more about giving feedback to related to the evaluation against certain policies without necessarily rejecting the SBOM input. They anticipate certain information that each SBOM may not necessarily have to represent, and provide guidance on how to include this information on the SBOM. It also tries to gauge the quality of the SBOM based on what it anticipates and that is actually found within the SBOM in the form of levels or points. 
+The warnings help give feedback against certain policies without necessarily rejecting the SBOM input. They anticipate certain information that every single SBOM may not necessarily need to represent, and provide guidance on how to include this information on the SBOM. It also tries to gauge the quality of the SBOM based on what it expected vs. what is actually found within the SBOM  and gives a grading in the form of levels or points. 
 
 == 2. How to Write Policies
 
@@ -47,7 +47,7 @@ The warnings are more about giving feedback to related to the evaluation against
 
 The policies evaluated against SBOMs using Mequal will need to be written using the https://www.openpolicyagent.org/docs/latest/policy-language/[Rego language], which is a language that is specialized in writing policies as code. So having a basic understanding of it will be necessary to write policies.
 
-=== Folder structures and corrsponding package hierarchy
+=== Folder structures and corresponding package hierarchy
 
 The first practice we should make sure to follow is to keep a directory of policies consistent with the rego package structure, very similar to how it's done in Java. So given we'd like to organize our policy like below:
 
@@ -62,7 +62,7 @@ sbom
 ----> policy2.rego
 ----
 
-a .rego file representing sbom/cyclonedx/policy1.rego should have
+a .rego file representing `sbom/cyclonedx/policy1.rego` should have
 
 [source,bash]
 ----
@@ -80,7 +80,7 @@ It's important that we define *one policy per file*, with the rules related to t
 
 Let's get started by writing a nice and simple example policy, and then explaining all the important parts of the code.
 
-Let's say we'd like to create a a policy for an SPDX SBOM that checks if the SBOM contains any *packages*. To do this we can create a *packages.rego* file within the directory example above, as *sbom/spdx/packages.rego*
+Let's say we'd like to create a a policy for an SPDX SBOM that checks if the SBOM contains any *packages*. To do this we can create a `packages.rego` file within the directory example above, as `sbom/spdx/packages.rego`
 
 As rules for this policy, we can define two of them:
 
