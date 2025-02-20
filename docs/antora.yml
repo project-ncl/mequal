@@ -26,4 +26,6 @@ nav:
   - modules/ROOT/nav.adoc
   - modules/getting-started/nav.adoc
   - modules/project-goals/nav.adoc
+  - modules/writing-policies/nav.adoc
+  - modules/policies/nav.adoc
   - modules/handbook/nav.adoc

@@ -1,0 +1,13 @@
+The easiest way to get started with Mequal and evaluating SBOMs is to use a readily available container that encapsulates and evaluates the policies, and is able to do an evaluation on any SBOM input provided.
+
+We have a pre-release container always up-to-date with the latest policies we implement. Just run the command below on any SBOM you'd like (supports CycloneDX and SPDX formats) to test it out:
+
+[source,bash]
+----
+$ cat sbom.json | podman run -i --rm quay.io/pct-security/sbom-check:latest
+----
+
+[TIP]
+====
+As of right now, Mequal is just a set of SBOM manifest policies that are assessed using Conforma/OPA from inside of a container, with future improvements related to our project goals coming soon!
+====

@@ -7,7 +7,7 @@
 
 Mequal is a project based on the OPA/Conforma policy engines with the goal of evaluating and validating SBOM manifests, giving feedback and guidance on the quality of a manifest, while also enabling easy custom policy authoring to extend the validation and evaluation criteria for context-specific manifests.
 
-Right now as a starting point, Mequal is just a set of SBOM manifest policies that are assessed using Conforma from inside of a container. The future goals of this project are:
+The future goals of this project are:
 
 * *Validation and evaluation tooling* that can be easily integrated with SBOM manifest generation services.
 * *Improve the quality* of a manifest by Generating reports to provide meaningful and actionable feedback and improvement suggestions.
@@ -17,15 +17,12 @@ For more information please visit our xref:project-goals:index.adoc[Project Goal
 
 == Try It Now!
 
-We have a pre-release container always up-to-date with the latest policies we implement. Just run the command below on any SBOM you'd like (supports CycloneDX and SPDX formats) to test it out:
-
-[source,bash]
-----
-cat sbom.json | podman run -i quay.io/pct-security/sbom-check:latest
-----
+include::getting-started:partial$quickstart.adoc[]
 
 == Resources
 
 * xref:getting-started:index.adoc[Getting Started]
 * xref:project-goals:index.adoc[Project Goals]
+* xref:writing-policies:index.adoc[Writing & Testing Policies]
+* xref:policies:index.adoc[Mequal Policies]
 * xref:handbook:index.adoc[Handbook]

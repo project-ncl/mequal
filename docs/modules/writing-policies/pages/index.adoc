@@ -1,0 +1,158 @@
+= Writing & Testing Policies
+
+include::ROOT:partial$wip.adoc[]
+
+== 1. Basic Concepts for Policy Evaluation
+
+This section we'll dive into the basic concepts of policy evaluation at a high-level.
+
+=== a. Policies
+
+A policy is a set of rules that are evaluated against a specific input. In our case that input would be the SBOM we pass into Mequal for evaluation.
+
+=== b. Rules
+
+A rules is a self-contained condition that belongs to a policy. Rules are what make up each policy and can be considered the smallest unit of evaluation.
+
+=== c. Prerequisites
+
+Prerequisites is a set of conditions that an input is supposed to meet before a policy can be evaluated on said input. For example, if a policy is related to only 1.6 and higher versions of a CycloneDX SBOM, the prerequisites to check before running this policy evaluation on an SBOM is:
+
+- A CycloneDX SBOM
+- With version is higher than 1.6
+
+=== d. Policy Repository
+
+We store a set of policies packed into a certain hierarchical directory inside of an SCM repository. Both the written policies and the code for the policies would live in this repository and can be fetched when needed for evaluation. This enables us to maintain the policies and their changes in a systematic, version-controlled manner, where all changes and version releases can be easily tracked and managed.
+
+=== e. Policy Metadata (WIP)
+
+In order to represent a policy as code that is compatible for EC/Conforma/OPA evaluation, we need to include a certain amount of metadata related to a policy. A standardized way of representing this required information is a policy metadata schema that each written policy should comply with. (For example, each policy should have a title and description)
+
+=== f. Policy Configuration
+
+The Conforma/EC tool used by Mequal relies on the usage of policy configurations that can point to a specific set of SCM repositories containing policies, so the tooling can fetch them for evaluation in the background. It also supports to include and exclude certain policies from being evaluated directly from the configuration file. It can also exist and be maintained as a Kubernetes resource.
+
+=== g. Evaluation
+
+An evaluation the output produced by EC/Conforma/OPA with Mequal after running a set of policies against a specific input. It can be in either json or yaml format and contains what violations or warnings have been raised against these policies for the input. This evaluation can be context-specific depending on the policies it runs and the type of input that is passed into the SBOM. (For example different policy checks for different SBOM versions, SBOM types, etc.)
+
+The violations help with our validation of the SBOMs to make sure they comply with the policy and fail the evaluation if there are any policies the SBOM doesn't comply with. These are more related to the basic important rules the SBOM must comply with to be considered valid.
+
+The warnings are more about giving feedback to related to the evaluation against certain policies without necessarily rejecting the SBOM input. They anticipate certain information that each SBOM may not necessarily have to represent, and provide guidance on how to include this information on the SBOM. It also tries to gauge the quality of the SBOM based on what it anticipates and that is actually found within the SBOM in the form of levels or points. 
+
+== 2. How to Write Policies
+
+=== Resources on Rego
+
+The policies evaluated against SBOMs using Mequal will need to be written using the https://www.openpolicyagent.org/docs/latest/policy-language/[Rego language], which is a language that is specialized in writing policies as code. So having a basic understanding of it will be necessary to write policies.
+
+=== Folder structures and corrsponding package hierarchy
+
+The first practice we should make sure to follow is to keep a directory of policies consistent with the rego package structure, very similar to how it's done in Java. So given we'd like to organize our policy like below:
+
+[source,bash]
+----
+sbom
+-> cyclonedx
+----> policy1.rego
+----> policy2.rego
+-> spdx
+----> policy1.rego
+----> policy2.rego
+----
+
+a .rego file representing sbom/cyclonedx/policy1.rego should have
+
+[source,bash]
+----
+import sbom.cyclonedx.policy1
+----
+
+defined on top of the file.
+
+[IMPORTANT]
+====
+It's important that we define *one policy per file*, with the rules related to that policies residing within that file. 
+====
+
+=== Writing Policies in Rego
+
+Let's get started by writing a nice and simple example policy, and then explaining all the important parts of the code.
+
+Let's say we'd like to create a a policy for an SPDX SBOM that checks if the SBOM contains any *packages*. To do this we can create a *packages.rego* file within the directory example above, as *sbom/spdx/packages.rego*
+
+As rules for this policy, we can define two of them:
+
+- The SBOM includes a *packages* field
+- The SBOM has a non-empty *packages* field
+
+Our file would then look like below:
+
+[source,rego]
+----
+# METADATA
+# title: SPDX Contains Packages // <1>
+# description: >-
+#   Check if the SPDX SBOM contains any packages. // <2>
+package sbom.spdx.packages // <3>
+
+import data.lib // <4>
+import data.sbom.util.is_spdx // <5>
+import rego.v1 // <6>
+
+# Define the prerequisites to check for each policy (i.e. what SBOMs should these policies run on?)
+prerequisite if {
+	is_spdx // <7>
+}
+
+# METADATA
+# title: SPDX SBOM has a packages field // <8>
+# description: The SPDX SBOM has a packages field. // <9>
+# custom:
+#   short_name: spdx_sbom_has_packages_field // <10>
+#   failure_msg: SPDX SBOM does not have a packages field // <11>
+deny contains result if {
+	prerequisite // <12>
+	not input.packages
+	result := object.union( // <13>
+		lib.result_helper(rego.metadata.chain(), []), // <14>
+		{"policy_level": "L1", "policy_id": "LPOL2"}, // <15>
+	)
+}
+
+# METADATA
+# title: SPDX SBOM packages field not empty
+# description: The SPDX SBOM has a non-empty packages field.
+# custom:
+#   short_name: spdx_sbom_packages_field_not_empty
+#   failure_msg: SPDX SBOM does not have a packages field
+deny contains result if {
+	prerequisite
+	count(input.packages) == 0
+	result := object.union(
+		lib.result_helper(rego.metadata.chain(), []),
+		{"custom_data": "example_value"},
+	)
+}
+----
+<1> Each policy requires a *title* as metadata
+<2> Each policy requires a *description* as metadata
+<3> *Package import* in line with the directory structure
+<4> *Import the helper functions* from EC/Conforma
+<5> Can *import functions* from other places
+<6> Can add to ensure *rego v1 compatibility*
+<7> All *prerequisite conditions* needed for the evaluation to be performed go in this function
+<8> Each rule within a policy requires a *title* as metadata
+<9> Each rule within a policy requires a *description* as metadata
+<10> Each rule within a policy requires an *ID* as metadata
+<11> Each rule within a policy requires a *failure message* as metadata. '%s' can be used within the string in order to pass variables to it.
+<12> Before each rule, the *prerequisite conditions* functions should be called to ensure evaluation is only done on inputes that satisfy the prerequisites.
+<13> *Helper function* for passing information as output.
+<14> String values can be passed into the empty array in the helper function to populate the '%s' variables in the failure_msg metadata
+<15> A *custom object* can be passed as part of the output. In this case it would be "{"custom_data": "example_value"}"
+
+
+== 3. How to Write Unit Tests Policies
+
+WIP
