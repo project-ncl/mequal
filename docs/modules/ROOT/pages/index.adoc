@@ -1,4 +1,4 @@
-= Mequal - Manifest Evaluation & Quality
+= Mequal -- Manifest Evaluation & Quality
 :navtitle: Welcome
 
 > In policy we trust!
