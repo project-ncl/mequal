@@ -117,7 +117,7 @@ deny contains result if {
 	not input.packages
 	result := object.union( // <13>
 		lib.result_helper(rego.metadata.chain(), []), // <14>
-		{"policy_level": "L1", "policy_id": "LPOL2"}, // <15>
+		{"custom_data": "example_value"}, // <15>
 	)
 }
 
