@@ -1,6 +1,9 @@
 = Writing & Testing Policies
 
-include::ROOT:partial$wip.adoc[]
+[TIP]
+====
+The way we write the policies for Mequal follow the guidelines provided in Conforma/EC, just in a more opionated manner. For more detail on these guidelines, visit the https://conforma.dev/docs/ec-policies/authoring.html[Conforma/EC documentation page].
+====
 
 == 1. Basic Concepts for Policy Evaluation
 
@@ -47,7 +50,7 @@ The warnings help give feedback against certain policies without necessarily rej
 
 The policies evaluated against SBOMs using Mequal will need to be written using the https://www.openpolicyagent.org/docs/latest/policy-language/[Rego language], which is a language that is specialized in writing policies as code. So having a basic understanding of it will be necessary to write policies.
 
-=== Folder structures and corresponding package hierarchy
+=== Folder Structures and Corresponding Package Hierarchy
 
 The first practice we should make sure to follow is to keep a directory of policies consistent with the rego package structure, very similar to how it's done in Java. So given we'd like to organize our policy like below:
 
@@ -152,7 +155,161 @@ deny contains result if {
 <14> String values can be passed into the empty array parameter of the helper function to populate the '%s' variables in the failure_msg metadata
 <15> A *custom object* can be passed as part of the output. In this case it would be "{"custom_data": "example_value"}"
 
+Following the example above, we were able to write a policy with two rules, where the policy is represented as a file, and the rules are represented as separate conditionals in the file. 
+
+[TIP]
+====
+In the rego rules, each conditional line by line form an *AND* statement. The example below:
+[source,rego]
+----
+deny contains result if {
+	condition1
+	condition2
+}
+----
+would represent *condition1 AND condition2*
+====
+[TIP]
+====
+To make an *OR* statement, the cleanest way to do it is to keep them in separate rules. The example below:
+[source,rego]
+----
+deny contains result if {
+	condition1
+}
+deny contains result if {
+	condition2
+}
+----
+would represent *condition1 OR condition2*
+====
 
 == 3. How to Write Unit Tests Policies
 
-WIP
+=== Folder Structures and Corresponding Package Hierarchy
+
+When writing unit tests for policies, we create a corresponding test file next to the policy we would like to test in whichever folder it's in, as shown below:
+[source,bash]
+----
+sbom
+-> cyclonedx
+----> policy1.rego
+----> policy1_test.rego
+-> spdx
+----> policy1.rego
+----> policy1_test.rego
+----
+a .rego file representing `sbom/cyclonedx/policy1_test.rego` should have
+[source,bash]
+----
+import sbom.cyclonedx.policy1_test
+----
+defined on top of the file.
+
+=== Writing Unit Tests in Rego
+
+Now let's prepare some unit tests for the example policy we defined in the section above. 
+
+[source,rego]
+----
+package sbom.spdx.packages_test // <1>
+
+import data.lib // <2>
+import data.sbom.spdx.packages // <3>
+import data.sbom.util.assert_passes_rules // <4>
+import data.sbom.util.assert_violates_rules
+import rego.v1
+
+# Rule IDs we would like to test // <5>
+_rule_spdx_sbom_has_packages_field := "sbom.spdx.packages.spdx_sbom_has_packages_field"
+_rule_spdx_sbom_packages_field_not_empty := "sbom.spdx.packages.spdx_sbom_packages_field_not_empty"
+
+# Prerequisites // <6>
+
+# If not an SPDX, make sure no rules in this policy are evaluated (i.e. don't return violations)
+test_prerequisite if {
+	sbom := {"name": "John", "surname": "Smith"}
+	results := packages.deny with input as sbom
+	lib.assert_equal(count(results), 0)
+}
+
+# Packages
+
+test_spdx_sbom_has_packages_field if {
+	sbom := {"SPDXID": "SPDXRef-DOCUMENT", "packages": [{"SPDXID": "test", "versionInfo": "1.3"}]}
+	results := packages.deny with input as sbom // <7>
+	assert_passes_rules(results, [_rule_spdx_sbom_has_packages_field]) // <8>
+}
+
+test_spdx_sbom_does_not_have_packages_field if {
+	sbom := {"SPDXID": "SPDXRef-DOCUMENT"}
+	results := packages.deny with input as sbom
+	assert_violates_rules(results, [_rule_spdx_sbom_has_packages_field]) // <9>
+}
+
+test_spdx_sbom_has_nonempty_packages_field if {
+	sbom := {"SPDXID": "SPDXRef-DOCUMENT", "packages": [{"SPDXID": "test", "versionInfo": "1.3"}]}
+	results := packages.deny with input as sbom
+	assert_passes_rules(results, [_rule_spdx_sbom_packages_field_not_empty])
+}
+
+test_spdx_sbom_has_empty_packages_field if {
+	sbom := {"SPDXID": "SPDXRef-DOCUMENT", "packages": []}
+	results := packages.deny with input as sbom
+	assert_violates_rules(results, [_rule_spdx_sbom_packages_field_not_empty])
+}
+----
+<1> *Package import* in line with the directory structure
+<2> *Import the helper functions* from EC/Conforma
+<3> *Import the policy package* that we would like to test
+<4> *Import the test assertion functions* to validate if a set of rules pass or fail
+<5> *Define the rules within the package* we want to test. (package directory.short_name)
+<6> *Test prerequisites* to make sure no rules are evaluated for an example input that doesn't follow the prerequisite conditions.
+<7> *Define a mock SBOM* and pass it as *input* into the policy for evaluation. Our example policy is named *packages*, so we get the *deny* violations of this policy by fetching *packages.deny*. If there were policies returning *warn* messages, we can run our mock input against those by fetching *packages.warn*
+<8> *Assert that a given list of rules pass* for the mock SBOM input given to the policy. Takes an array of rules to verify that the input complies with the policy.
+<9> *Assert that a given list rules contains violations* for the mock SBOM input given to the policy. Takes an array of rules to verify that the input violates the policy.
+
+Following the example above, we've now written some unit tests to make sure that the mock SBOM inputs we've prepared either expectedly pass or fail the policy we are testing.
+
+== 4. How to Reference Policies in the Policy Configuration File
+
+Now that we have our policies and our tests in place, we need to make sure that EC/Conforma fetches them correctly for evaluation. Policy configuration files are a way for us to specify certain policies and rules for the tooling to evaluate. By referencing where the policies are located (it can be a git repository, or even a local file directory), and also being able to include and exclude certain policies, we are able to have higher-level control over what policies get considered for evaluation.
+
+=== Where is the Policy Configuration File?
+
+The Mequal container currently uses the {image-policy-config}[`./ec/policy-test.yaml`] configuration file. In order to point it to additional repositories, we can pass our own policies for evaluation by:
+
+- Referencing them from a Git repository using the `git::https://github.com/example/policies.git//subdir?ref=branchname` format
+- Referencing them from a local file directory using the `file::./policydir` formatting
+- Including or excluding certain rules from evaluation using their short_name IDs
+
+Below is an example of what a policy configuration file can look like:
+
+[source,yaml]
+----
+description: Example Policy Configuration
+sources:
+  - name: example-policy-config
+    policy:
+      - "file::./policydir/"
+      - "git::https://github.com/example/policies.git//subdir?ref=branchname"
+    config:
+      include:
+        - "sbom.spdx.packages.spdx_sbom_has_packages_field"
+	  exclude:
+	    - "sbom.spdx.packages.spdx_sbom_packages_field_not_empty"
+----
+
+[TIP]
+====
+More information on policy configuration files can be found in the https://conforma.dev/docs/ecc/index.html[Conforma/EC documentation].
+====
+
+[IMPORTANT]
+====
+Policy Configurations are something specific to Conforma/EC, and not supported if the OPA CLI tool directly is used for evaluation.
+====
+
+== 5. Conclusion
+
+Following the practices above, we can now build and run Mequal with our own policies following the instructions in the xref:getting-started:index.adoc[Getting Started] page.
