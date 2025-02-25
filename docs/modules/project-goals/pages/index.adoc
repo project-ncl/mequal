@@ -1,9 +1,132 @@
 = Project Goals
 
-include::ROOT:partial$wip.adoc[]
-
 With the Mequal project we have 3 high-level goals we’d like to achieve:
 
 . Validation
 . Evaluation
 . Policy Authoring
+
+== 1. Validation
+
+Validation can be thought of as *extended SBOM schema checks*, including but not limited to gating policy and automating the evaluation process with a more flexible approach compared to what an actual JSON or XML schema would allow. It’s intended to be portable for other tooling dealing with generation and storage of SBOM to use.
+
+=== Extended Schema examples
+* Gating checks for the very basics like PURL string and external reference format. These should always be valid if present.
+* Ecosystem specialization
+** Handling alternative approaches of package and source management. (For example RPMs having a SRPM)
+* Embedded extended schema in SBOMs
+** Validating a document further down a pipeline as changes are possibly made
+** Build/generation tool identification and enforcement (versioned pipelines)
+* Extended checks by policy delegation, eg. valid link checking, internal and external url checks, requires non-policy hooks or custom builtins
+* Chain of custody
+** Being permissive or restrictive on what has interacted with the SBOM
+
+=== Why is it useful?
+
+Extending the JSON or XML schemas from the the two main SBOM formats (CycloneDX and SPDX) is possible but its difficult to write and harder to document. A schema is pass or fail, and without maintaining a large catalogue of schema with subtle variations it’s not possible to view the same SBOM with a different lens.
+
+Writing the very basic checks in a policy language like Rego removes some of these issues. For example it’s easier to share a “valid” PURL-check function amongst multiple formats and schema versions. It allows for more descriptive metadata about a policy where we’re not restricted to a description field in JSON schema. But even more relevant is the policy doesn’t have to be pass or fail, so in situations where the rule is “should” rather than “must”, we can call that out but ultimately delegate the decision to the tooling.
+
+*Ecosystem specialization* is also a useful advantage to a policy-based extended schema. For example, checking if an RPM is generated from a source RPM would be difficult to encode in a JSON schema and would again deviate from the base specification. With policy language, multiple rules can be run simultaneously.
+
+An embedded extended schema could also be utilized like a schema URI that resolves to a specific set of policies that ran at the time of the document creation, and like a schema it can ensure that the onward enrichment process is also checked against the policies intended by the author.
+
+In policy, although most checks are possible relying on just the SBOM document itself, it is also possible, unlike a schema, to carry out more exhaustive checks like verifying if a URL is reachable or if a component’s checksum matches. Although this is somewhat counterproductive for portability, it is something we could utilize.
+
+Policy alongside signing could also be used to validate the integrity of an SBOM and that it meets a particular organizations’ standards. This means a chain of custody can be established, and this may be an useful mechanism where there are multiple SBOM sources. For example upstream community SBOM or SBOMs derived from an early-access release, which do not need to meet the same threshold.
+
+=== Who’s it useful to?
+
+As mentioned, these use cases are more suited for validation purposes. Firstly for the individuals and tools responsible for SBOM creation (e.g. SBOMer) and the initial review, and then later for process tools which may want to discriminate ingested SBOMs based on the policy (e.g. TPA
+Evaluation)
+
+== 2. Evaluation
+
+Evaluation differs from validation in that is related to *qualitative* aspects of the manifest. This is less likely to be gating checks and instead is more about *user feedback*. Providing the details of a rule, why it exists, what it’s expected to provide, and examples on how to improve an SBOM. This would guide individuals to provide a better quality SBOM which contains more useful information further downstream for SMEs to action upon.
+
+=== Quality improvement examples
+
+* Information requirements for multiple stakeholders
+** Full component metadata (SHA etc.)
+** Legal
+*** Licenses
+*** Cryptographic libraries (export licensing)
+** Build environment
+*** Supply chain questions
+** Project or Product info
+*** Naming
+*** Versions
+*** Release names
+* SBOM Type (layering and phases)
+** Service or infrastructure BOMs should contain endpoints, ports, protocols, etc.
+* SBOM Onboarding/Lifecycle Representation
+** SBOM type and evolution 
+** Process should start with a design SBOM and end with decommissioning SBOM)
+* Component Registry (TPA Client)
+** Dependencies or related projects with vulnerabilities
+** Dependency SBOM quality (recursive SBOM)
+** Other usages of this component (how popular it is, who supports it) - leading people to choosing the best supported version of a component, suggesting alternatives, etc.
+
+=== Why is it useful?
+
+We described policy evaluation as qualitative and this is what these use cases aim to improve. There are already a number of guidelines for SBOM creation and tools to assess SBOM quality, but these often fit into the former validation category and as a result produce a simplistic report. Many provide a poor abstraction and do not direct the user to what the problem is, where it occurs or how to improve upon it.
+
+Textual feedback to the user akin to a compiler warning is a better way to provide these key bits of information. This guides the user on a gradual improvement to reach verification of their target policy set.
+
+Identifying information requirements from multiple Subject Matter Experts will allow gradual improvement in multiple aspects of an SBOM without the requirement for the user to have that expert knowledge. As an example, a product engineer might not know that mixing components of two contradicting licenses will be problematic for the organization, or may not properly consider supply chain attacks when quickly pulling a project together.
+
+Another example of knowledge that could be imparted onto the user is knowledge about the SBOMs themselves and how they are used in their organization. This would include information about how to use the full SBOM lifecycle to help spread the information requirement gathering amongst multiple teams.
+
+SBOM quality is also an opportunity to highlight information from other tools. For example, feedback about potentially vulnerable components from Software Composition Analysis. Or as a more complex example, if we have chosen a stricter set of policies that requires a hermetic build, do any of the components we rely upon also conform to these policies?
+
+=== Who’s it useful to?
+
+As mentioned, these use cases are around *quality improvement and guidance*. This is focused at end-users rather than services or tooling. The end users could be the Software Production teams, Product and QE teams, Product Security team, legal team, etc. Anyone that interacts with a project or product and has an interest in improving the quality of the SBOM for their own use case or others.
+
+== 3. Policy Authoring
+
+Policy authoring is the mechanism we will expect Subject Matter Experts (SMEs) to use in order to impart knowledge onto the software production and release processes, allowing a consistent and accessible way to share their knowledge with the wider organization. In other words we want teams involved in a product to contribute to improving SBOM by asking what they want to know.
+
+We should not expect SMEs to be knowledgeable in existing policies, the language they are implemented in, or the details of the SBOM formats and schemas, as these are all large barriers to entry. Instead, policy authoring tooling will focus on capturing scenarios (e.g. Supply chain attack), the questions they would ask to resolve the scenario (e.g. “Which projects are using this repository?”), and the information requirement (e.g. The URL of the component’s origin)
+
+The information requirement is ultimately reflected in Rego to be evaluated and validated in agreement with the wider group.
+
+Ultimately, ensuring we capture this information in a consistent manner means we can ensure anyone evaluating an SBOM will have an understanding of why, where and how.
+
+=== Policy authoring examples
+
+* Policy closely coupled with
+** The information requirement and its description
+** The questions that ask of it
+** The people who want to ask the question (Stakeholders/SMEs)
+** The scenarios in which it would be asked
+* Policy boilerplate generation
+* SBOM Boilerplate generation (Build upon the SBOM you need, add one example and extrapolate from there)
+
+=== Why is it useful?
+
+Closely coupling policy with information around the policy in plain English and clear attribution to teams and individuals helps us later on when we know there is a policy (rule) but not why it exists. Policies are ever evolving and as part of that process some policies will become irrelevant. There should be a method to find out if a policy is still relevant and why we as an organization should still rely on them.
+
+The idea of linking scenarios, questions and information requirements, and then making that a part of the process achieves a number of goals.
+
+* Consistency and gating of policy
+* Approachability
+** You don’t need to know SBOM specifications or know Rego to describe a scenario and the questions you would ask to resolve it.
+** You don’t need to know the workflow or the ins-and-outs of scenario to provide an information requirement.
+* Policy categorization
+** Adjustable scope or levels (we can ensure that all facets of a scenario are covered)
+** Maybe we’re not interested in supply chain attacks or legal policies when we’re dealing with a development SBOM
+* Policy reuse
+** Forking of other organizations policy and customizing it to your own specifics.
+** The same information requirement can answer multiple questions, this will help reduce the split-brain problem where the same policy is written in multiple ways by multiple authors.
+* Policy attribution
+** Who asked for this policy, why is it useful?
+** Policy review and refinement
+
+Many of the common checks we want to do in policy can be abstracted to Rego functions for reuse. For example a valid base-PURL check will occur in multiple fields. We also want to ensure there is consistency in the results and the policy metadata. Assisting policy authors by supplying this boilerplate will lower the barrier to entry for direct policy authoring.
+
+Creating test SBOMs and snippets of the fields the policies will operate on will help with policy structure and enable us to test with known good examples of an SBOM. It also can allow us to produce an ideal SBOM example.
+
+=== Who’s it useful to?
+
+Policy authoring tooling is useful to SMEs and policy implementers. It helps keep track of policy for SBOMs and allows organizations to share policies with customers. It’s also useful for development teams associated with services that produce and consume SBOMs. These policies and their related information give insight into the practical use of various SBOM formats and specification versions.
