@@ -1,3 +1,7 @@
+//Refs
+:fn-sbomer-ref: footnote:sbomer[https://github.com/project-ncl/sbomer[SBOMer]]
+:fn-trustify-ref: footnote:trustify[https://github.com/trustification/trustify[trustify]]
+
 = Project Goals
 
 With the Mequal project we have 3 high-level goals we’d like to achieve:
@@ -5,6 +9,7 @@ With the Mequal project we have 3 high-level goals we’d like to achieve:
 . Validation
 . Evaluation
 . Policy Authoring
+
 
 == 1. Validation
 
@@ -37,8 +42,7 @@ Policy alongside signing could also be used to validate the integrity of an SBOM
 
 === Who’s it useful to?
 
-As mentioned, these use cases are more suited for validation purposes. Firstly for the individuals and tools responsible for SBOM creation (e.g. SBOMer) and the initial review, and then later for process tools which may want to discriminate ingested SBOMs based on the policy (e.g. TPA
-Evaluation)
+As mentioned, these use cases are more suited for validation purposes. Firstly for the individuals and tools responsible for SBOM creation (e.g. SBOMer {fn-sbomer-ref}) and the initial review, and then later for process tools which may want to discriminate ingested SBOMs based on the policy (e.g. trustify {fn-trustify-ref} Evaluation)
 
 == 2. Evaluation
 
@@ -62,7 +66,7 @@ Evaluation differs from validation in that is related to *qualitative* aspects o
 * SBOM Onboarding/Lifecycle Representation
 ** SBOM type and evolution 
 ** Process should start with a design SBOM and end with decommissioning SBOM)
-* Component Registry (TPA Client)
+* Component Registry (trustify {fn-trustify-ref} client)
 ** Dependencies or related projects with vulnerabilities
 ** Dependency SBOM quality (recursive SBOM)
 ** Other usages of this component (how popular it is, who supports it) - leading people to choosing the best supported version of a component, suggesting alternatives, etc.
@@ -92,6 +96,7 @@ We should not expect SMEs to be knowledgeable in existing policies, the language
 The information requirement is ultimately reflected in Rego to be evaluated and validated in agreement with the wider group.
 
 Ultimately, ensuring we capture this information in a consistent manner means we can ensure anyone evaluating an SBOM will have an understanding of why, where and how.
+
 
 === Policy authoring examples
 
