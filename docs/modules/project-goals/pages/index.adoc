@@ -26,7 +26,7 @@ Validation can be thought of as *extended SBOM schema checks*, including but not
 * Chain of custody
 ** Being permissive or restrictive on what has interacted with the SBOM
 
-=== Why is it useful?
+=== Why is validation useful?
 
 Extending the JSON or XML schemas from the two main SBOM formats (CycloneDX and SPDX) is possible but its difficult to write and harder to document. A schema is pass or fail, and without maintaining a large catalogue of schema with subtle variations it’s not possible to view the same SBOM with a different lens.
 
@@ -40,7 +40,7 @@ In policy, although most checks are possible relying on just the SBOM document i
 
 Policy alongside signing could also be used to validate the integrity of an SBOM and that it meets a particular organizations’ standards. This means a chain of custody can be established, and this may be an useful mechanism where there are multiple SBOM sources. For example upstream community SBOM or SBOMs derived from an early-access release, which do not need to meet the same threshold.
 
-=== Who’s it useful to?
+=== Who is validation useful to?
 
 As mentioned, these use cases are more suited for validation purposes. Firstly for the individuals and tools responsible for SBOM creation (e.g. SBOMer {fn-sbomer-ref}) and the initial review, and then later for process tools which may want to discriminate ingested SBOMs based on the policy (e.g. trustify {fn-trustify-ref} Evaluation)
 
@@ -71,7 +71,7 @@ Evaluation differs from validation in that is related to *qualitative* aspects o
 ** Dependency SBOM quality (recursive SBOM)
 ** Other usages of this component (how popular it is, who supports it) - leading people to choosing the best supported version of a component, suggesting alternatives, etc.
 
-=== Why is it useful?
+=== Why is evaluation useful?
 
 We described policy evaluation as qualitative and this is what these use cases aim to improve. There are already a number of guidelines for SBOM creation and tools to assess SBOM quality, but these often fit into the former validation category and as a result produce a simplistic report. Many provide a poor abstraction and do not direct the user to what the problem is, where it occurs or how to improve upon it.
 
@@ -83,7 +83,7 @@ Another example of knowledge that could be imparted onto the user is knowledge a
 
 SBOM quality is also an opportunity to highlight information from other tools. For example, feedback about potentially vulnerable components from Software Composition Analysis. Or as a more complex example, if we have chosen a stricter set of policies that requires a hermetic build, do any of the components we rely upon also conform to these policies?
 
-=== Who’s it useful to?
+=== Who is evaluation useful to?
 
 As mentioned, these use cases are around *quality improvement and guidance*. This is focused at end-users rather than services or tooling. The end users could be the Software Production teams, Product and QE teams, Product Security team, legal team, etc. Anyone that interacts with a project or product and has an interest in improving the quality of the SBOM for their own use case or others.
 
@@ -108,7 +108,7 @@ Ultimately, ensuring we capture this information in a consistent manner means we
 * Policy boilerplate generation
 * SBOM Boilerplate generation (Build upon the SBOM you need, add one example and extrapolate from there)
 
-=== Why is it useful?
+=== Why is policy authoring useful?
 
 Closely coupling policy with information around the policy in plain English and clear attribution to teams and individuals helps us later on when we know there is a policy (rule) but not why it exists. Policies are ever evolving and as part of that process some policies will become irrelevant. There should be a method to find out if a policy is still relevant and why we as an organization should still rely on them.
 
@@ -132,6 +132,6 @@ Many of the common checks we want to do in policy can be abstracted to Rego func
 
 Creating test SBOMs and snippets of the fields the policies will operate on will help with policy structure and enable us to test with known good examples of an SBOM. It also can allow us to produce an ideal SBOM example.
 
-=== Who’s it useful to?
+=== Who is policy authoring useful to?
 
 Policy authoring tooling is useful to SMEs and policy implementers. It helps keep track of policy for SBOMs and allows organizations to share policies with customers. It’s also useful for development teams associated with services that produce and consume SBOMs. These policies and their related information give insight into the practical use of various SBOM formats and specification versions.
