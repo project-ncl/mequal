@@ -28,7 +28,7 @@ Validation can be thought of as *extended SBOM schema checks*, including but not
 
 === Why is it useful?
 
-Extending the JSON or XML schemas from the the two main SBOM formats (CycloneDX and SPDX) is possible but its difficult to write and harder to document. A schema is pass or fail, and without maintaining a large catalogue of schema with subtle variations it’s not possible to view the same SBOM with a different lens.
+Extending the JSON or XML schemas from the two main SBOM formats (CycloneDX and SPDX) is possible but its difficult to write and harder to document. A schema is pass or fail, and without maintaining a large catalogue of schema with subtle variations it’s not possible to view the same SBOM with a different lens.
 
 Writing the very basic checks in a policy language like Rego removes some of these issues. For example it’s easier to share a “valid” PURL-check function amongst multiple formats and schema versions. It allows for more descriptive metadata about a policy where we’re not restricted to a description field in JSON schema. But even more relevant is the policy doesn’t have to be pass or fail, so in situations where the rule is “should” rather than “must”, we can call that out but ultimately delegate the decision to the tooling.
 
