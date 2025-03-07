@@ -71,7 +71,7 @@ Evaluation differs from validation in that is related to *qualitative* aspects o
 ** Dependency SBOM quality (recursive SBOM)
 ** Other usages of this component (how popular it is, who supports it) - leading people to choosing the best supported version of a component, suggesting alternatives, etc.
 
-=== Why is evaluation useful?
+=== Why is evaluation through policies useful for SBOM quality?
 
 We described policy evaluation as qualitative and this is what these use cases aim to improve. There are already a number of guidelines for SBOM creation and tools to assess SBOM quality, but these often fit into the former validation category and as a result produce a simplistic report. Many provide a poor abstraction and do not direct the user to what the problem is, where it occurs or how to improve upon it.
 
