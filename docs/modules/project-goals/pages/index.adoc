@@ -8,7 +8,7 @@ With the Mequal project we have 3 high-level goals we’d like to achieve:
 
 . Validation
 . Evaluation
-. Policy Authoring
+. Policy Creation and Management
 
 
 == 1. Validation
@@ -87,32 +87,17 @@ SBOM quality is also an opportunity to highlight information from other tools. F
 
 As mentioned, these use cases are around *quality improvement and guidance*. This is focused at end-users rather than services or tooling. The end users could be the Software Production teams, Product and QE teams, Product Security team, legal team, etc. Anyone that interacts with a project or product and has an interest in improving the quality of the SBOM for their own use case or others.
 
-== 3. Policy Authoring
+== 3. Policy Creation and Management
 
-Policy authoring is the mechanism we will expect Subject Matter Experts (SMEs) to use in order to impart knowledge onto the software production and release processes, allowing a consistent and accessible way to share their knowledge with the wider organization. In other words we want teams involved in a product to contribute to improving SBOM by asking what they want to know.
+Allowing easy policy creation by subject matter experts, coupled with an effective way to manage them, will provide a consistent and accessible way to share knowledge with the wider organization.
 
-We should not expect SMEs to be knowledgeable in existing policies, the language they are implemented in, or the details of the SBOM formats and schemas, as these are all large barriers to entry. Instead, policy authoring tooling will focus on capturing scenarios (e.g. Supply chain attack), the questions they would ask to resolve the scenario (e.g. “Which projects are using this repository?”), and the information requirement (e.g. The URL of the component’s origin)
+These subject matter experts will not need to be knowledgable in existing policies and how they are represented in Mequal, or the details of the SBOM formats and schemas, as these are all large barriers to entry. Instead, the policy creation will focus on capturing scenarios (e.g. Supply chain attack), the questions they would ask to resolve the scenario (e.g. “Which projects are using this repository?”), and the information requirement (e.g. The URL of the component’s origin) and provide an interface to create these types of policies.
 
-The information requirement is ultimately reflected in Rego to be evaluated and validated in agreement with the wider group.
+If we can get easy policy contributions from subject matter experts and carefully manage the policies with clear, concrete definitions, who contributed them, and for what purposes, this would enable us to keep track of what policies are in place, why they exist, and their evolution through time through version control principles. 
 
-Ultimately, ensuring we capture this information in a consistent manner means we can ensure anyone evaluating an SBOM will have an understanding of why, where and how.
+Policies are ever evolving and as part of that process some policies will become irrelevant. Our goal is to create and manage policies where we can easily know if a policy is still relevant and why we as an organization should still rely on them.
 
-
-=== Policy authoring examples
-
-* Policy closely coupled with
-** The information requirement and its description
-** The questions that ask of it
-** The people who want to ask the question (Stakeholders/SMEs)
-** The scenarios in which it would be asked
-* Policy boilerplate generation
-* SBOM Boilerplate generation (Build upon the SBOM you need, add one example and extrapolate from there)
-
-=== Why is policy authoring useful?
-
-Closely coupling policy with information around the policy in plain English and clear attribution to teams and individuals helps us later on when we know there is a policy (rule) but not why it exists. Policies are ever evolving and as part of that process some policies will become irrelevant. There should be a method to find out if a policy is still relevant and why we as an organization should still rely on them.
-
-The idea of linking scenarios, questions and information requirements, and then making that a part of the process achieves a number of goals.
+The easy creation and management of policies and coupling them with certain important information (scenarios, questions, information requirements, why, for whom) helps us achieve a number of goals:
 
 * Consistency and gating of policy
 * Approachability
@@ -128,10 +113,6 @@ The idea of linking scenarios, questions and information requirements, and then 
 ** Who asked for this policy, why is it useful?
 ** Policy review and refinement
 
-Many of the common checks we want to do in policy can be abstracted to Rego functions for reuse. For example a valid base-PURL check will occur in multiple fields. We also want to ensure there is consistency in the results and the policy metadata. Assisting policy authors by supplying this boilerplate will lower the barrier to entry for direct policy authoring.
+=== Who is policy creation and management useful to?
 
-Creating test SBOMs and snippets of the fields the policies will operate on will help with policy structure and enable us to test with known good examples of an SBOM. It also can allow us to produce an ideal SBOM example.
-
-=== Who is policy authoring useful to?
-
-Policy authoring tooling is useful to SMEs and policy implementers. It helps keep track of policy for SBOMs and allows organizations to share policies with customers. It’s also useful for development teams associated with services that produce and consume SBOMs. These policies and their related information give insight into the practical use of various SBOM formats and specification versions.
+Easy policy creation and management will be useful to subject matter experts and policy implementers. It will help keep track of policies for SBOMs and allow organizations to manage and share their policies, even with customers. It’s also useful for development teams associated with services that produce and consume SBOMs. These policies and their related information give insight into the practical use of various SBOM formats and specification versions.
