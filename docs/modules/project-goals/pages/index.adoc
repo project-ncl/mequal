@@ -6,10 +6,17 @@
 
 With the Mequal project we have 3 high-level goals we’d like to achieve:
 
-. Validation
-. Evaluation
-. Policy Creation and Management
+*Validation*
 
+We would like to identify if a manifest is up-to-standard not just in its schema representation, but beyond, where we can also identify problems where the standard schema checks of different manifest formats just wouldn't be able to identify them. We'd also like to validate certain representations of a manifest depending on the context or what type of manifest it is.
+
+*Evaluation*
+
+For situations where direct validation of an SBOM may not be so easy, such as optional or alternative data representations in manifests, we'd like to at the very least return feedback on what problems this would cause in what situations, and offer guidance and solutions to address these.
+
+*Policy Creation and Management*
+
+We'd like to enable policy creation in a simplified manner, without requiring high-level expertise in the underlying policy language in order to leverage the expertise of others, and to keep track of these policies by managing them in a version-controlled fashion, where we can keep track of the higher-level details, the evolution, and the ongoing validity of these policies.
 
 == 1. Validation
 
