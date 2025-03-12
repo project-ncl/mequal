@@ -8,7 +8,9 @@ With the Mequal project we have 3 high-level goals we’d like to achieve:
 
 *Validation*
 
-We would like to identify if a manifest is up-to-standard not just in its schema representation, but beyond, where we can also identify problems where the standard schema checks of different manifest formats just wouldn't be able to identify them. We'd also like to validate certain representations of a manifest depending on the context or what type of manifest it is.
+We would like to identify if a manifest is up-to-standard not just in its schema representation, but beyond, where we can also identify problems where the standard schema checks of different manifest formats just wouldn't be able to identify them. We'd also like to validate certain representations of a manifest depending on the context or what type of manifest it is. 
+
+Through this, we would like to validate the "correctness" of a manifest given a specific set of rules within a certain business context, going beyond the basic schema checks.
 
 *Evaluation*
 
