@@ -14,7 +14,7 @@ Through this, we would like to validate the "correctness" of a manifest given a 
 
 *Evaluation*
 
-For situations where direct validation of an SBOM may not be so easy, such as optional or alternative data representations in manifests, we'd like to at the very least return feedback on what problems this would cause in what situations, and offer guidance and solutions to address these.
+For situations where direct validation of a manifest may not be so easy, such as optional or alternative data representations in manifests, we'd like to at the very least return feedback on what problems this would cause in what situations, and offer guidance and solutions to address these.
 
 Through this, we would like to ensure that we make gradual quality improvements in the information contained in our manifests.
 
