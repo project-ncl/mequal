@@ -16,6 +16,8 @@ Through this, we would like to validate the "correctness" of a manifest given a 
 
 For situations where direct validation of an SBOM may not be so easy, such as optional or alternative data representations in manifests, we'd like to at the very least return feedback on what problems this would cause in what situations, and offer guidance and solutions to address these.
 
+Through this, we would like to ensure that we make gradual quality improvements in the information contained in our manifests.
+
 *Policy Creation and Management*
 
 We'd like to enable policy creation in a simplified manner, without requiring high-level expertise in the underlying policy language in order to leverage the expertise of others, and to keep track of these policies by managing them in a version-controlled fashion, where we can keep track of the higher-level details, the evolution, and the ongoing validity of these policies.
