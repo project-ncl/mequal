@@ -1,0 +1,23 @@
+FROM registry.access.redhat.com/ubi9/ubi@sha256:53d6c19d664f4f418ce5c823d3a33dbb562a2550ea249cf07ef10aa063ace38f
+
+EXPOSE 8181
+WORKDIR /home/mequal
+
+RUN dnf install wget -y \
+    && dnf install jq -y \ 
+    && wget https://github.com/open-policy-agent/opa/releases/download/v1.2.0/opa_linux_amd64 -O opa \
+    && chmod +x ./opa \
+    && mkdir ./bundle
+
+RUN adduser -u 1000 -U mequal -m
+
+USER root
+COPY ./policy/ ./policy/
+RUN ./opa build -b ./policy/EC -b ./policy/mequal -o ./bundle/mequal_policies.tar.gz
+COPY ./container_files/cli-run.sh .
+COPY ./container_files/server-run.sh .
+
+RUN chown -R mequal:mequal /home/mequal
+
+USER mequal
+CMD ["/bin/bash", "./cli-run.sh"]
