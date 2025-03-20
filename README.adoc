@@ -24,3 +24,64 @@ Curious?
 == Documentation
 
 Documentation is link:https://project-ncl.github.io/mequal/[available here].
+
+== Mequal Policy Bundles
+
+This repository also contains an initial set of starter policies written for Mequal and includes the Containerfiles to build images to evalation these policies either in CLI or as a server. Both methods currently rely on link:https://www.openpolicyagent.org[OpenPolicyAgent (OPA)] in the background for evaluation.
+
+For more information on Mequal please visit the link:https://project-ncl.github.io/mequal/[documentation page].
+
+Disclaimer: These policies are currently random and only for example purposes
+
+== Quickstart with CLI Policy Evaluation
+
+=== Available image on Quay
+
+Doing a quick demo on an SBOM is very easy, just by using the command below:
+
+[source,bash]
+----
+cat sbom.json | podman run -i --rm quay.io/pct-security/mequal-cli:test
+----
+
+=== Building our own image
+
+We can also build the image locally from the root directory using the command below:
+
+[source,bash]
+----
+podman build -t mequal -f ./container_files/Containerfile .
+----
+and then run:
+[source,bash]
+----
+cat sbom.json | podman run --rm -i mequal
+----
+
+=== Quickstart with OPA Server
+
+We can just as easily run and evaluate these policies on an OPA server using the command below:
+[source,bash]
+----
+podman build -t mequal -f ./container_files/Containerfile .
+----
+We can then run the server on localhost:8181 with the command below:
+[source,bash]
+----
+podman run -p 8181:8181 mequal /bin/bash ./server-run.sh
+----
+After this, we can interact with OPA REST API to do the policy evaluations.
+
+For cleaner evaluation output, it's recommended to query the `main.rego` files for each respective policy group, with the query below:
+
+
+`pretty=data.mequal.main`
+
+Here is a REST query example to do so:
+[source,bash]
+----
+curl -X POST http://localhost:8181/v1/query -d '{ "query": "pretty=data.mequal.main" }' | jq
+----
+
+[TIP]
+For more detailed information on how to get started, please visit the link:https://project-ncl.github.io/mequal/docs/latest/getting-started/index.html[Mequal Getting Started] page.
