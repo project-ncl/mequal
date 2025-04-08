@@ -1,0 +1,28 @@
+{ 
+    "bomFormat": "CycloneDX", 
+    "metadata": {
+        "component": {
+            "name": "test",
+            "purl": "test"
+        }
+    },
+    "specVersion": "1.6",
+    "components": [
+        {
+            "name": "test1",
+            "purl": "test1"
+        },
+        {
+            "name": "test2",
+            "bom-ref": "test2-ref",
+            "version": "1.0",
+            "purl": "test2",
+            "externalReferences": [
+                {
+                    "type": "bom",
+                    "url": "urn:cdx:f08a6ccd-4dce-4759-bd84-c626675d60a7/1"
+                }
+            ]
+        }
+    ]
+}
