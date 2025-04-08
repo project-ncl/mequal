@@ -7,13 +7,19 @@ RUN dnf install wget -y \
     && dnf install jq -y \ 
     && wget https://github.com/open-policy-agent/opa/releases/download/v1.2.0/opa_linux_amd64 -O opa \
     && chmod +x ./opa \
+    && wget https://github.com/enterprise-contract/ec-cli/releases/download/v0.6.159/ec_linux_amd64 -O ece \
+    && chmod u+x ./ece \
     && mkdir ./bundle
 
 RUN adduser -u 1000 -U mequal -m
 
 USER root
 COPY ./policy/ ./policy/
-RUN ./opa build -b ./policy/EC -b ./policy/mequal -o ./bundle/mequal_policies.tar.gz
+
+# get prodsec external policies
+RUN ./ece fetch policy -s github.com/project-ncl/mequal-prodsec-policies//policy/prodsec
+
+RUN ./opa build -b $(ls -d -- ./policy/*/) -o ./bundle/mequal_policies.tar.gz
 COPY ./container_files/cli-run.sh .
 COPY ./container_files/server-run.sh .
 
