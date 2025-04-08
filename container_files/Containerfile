@@ -18,7 +18,7 @@ COPY ./policy/ ./policy/
 
 # get prodsec external policies
 RUN ./ece fetch policy -s github.com/project-ncl/mequal-prodsec-policies//policy/prodsec
-
+RUN rm ./ece
 RUN ./opa build -b $(ls -d -- ./policy/*/) -o ./bundle/mequal_policies.tar.gz
 COPY ./container_files/cli-run.sh .
 COPY ./container_files/server-run.sh .
