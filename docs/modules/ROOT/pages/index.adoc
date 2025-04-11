@@ -5,7 +5,7 @@
 
 == About
 
-Mequal is a project based on the OPA/Conforma policy engines with the goal of evaluating and validating SBOM manifests, giving feedback and guidance on the quality of a manifest, while also enabling easy custom policy authoring to extend the validation and evaluation criteria for context-specific manifests.
+Mequal is a project based on the OPA policy engine with the goal of evaluating and validating SBOM manifests, giving feedback and guidance on the quality of a manifest, while also enabling easy custom policy authoring to extend the validation and evaluation criteria for context-specific manifests.
 
 The future goals of this project are:
 

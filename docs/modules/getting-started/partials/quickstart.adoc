@@ -4,10 +4,10 @@ We have a pre-release container always up-to-date with the latest policies we im
 
 [source,bash]
 ----
-$ cat sbom.json | podman run -i --rm quay.io/pct-security/sbom-check:latest
+$ cat sbom.json | podman run -i --rm quay.io/pct-security/mequal:latest
 ----
 
 [TIP]
 ====
-As of right now, Mequal is just a set of SBOM manifest policies that are assessed using Conforma/OPA from inside of a container, with future improvements related to our project goals coming soon!
+As of right now, Mequal is just a set of SBOM manifest policies that are assessed using OPA from inside of a container, with future improvements related to our project goals coming soon!
 ====

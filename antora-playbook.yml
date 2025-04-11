@@ -27,9 +27,9 @@ content:
       edit_url: false
 asciidoc:
   attributes:
-    image-run-script: https://github.com/project-ncl/mequal
-    image-policy-config: https://github.com/project-ncl/mequal
-    local-run-script: https://github.com/project-ncl/mequal
+    server-run-script: https://github.com/project-ncl/mequal/blob/main/container_files/server-run.sh
+    cli-run-script: https://github.com/project-ncl/mequal/blob/main/container_files/cli-run.sh
+    local-run-script: https://github.com/project-ncl/mequal/blob/main/hack/local-opa-run.sh
 ui:
   supplemental_files: ./docs/ui
   bundle:

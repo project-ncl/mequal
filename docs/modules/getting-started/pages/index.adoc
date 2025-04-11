@@ -14,31 +14,47 @@ We can easily start editing the source code and maybe even adding some policies 
 ----
 $ git clone https://github.com/project-ncl/mequal.git
 $ cd mequal
-$ podman build -t "mequal-testing" -f ./container_files/Containerfile .
-$ cat input/good/sbom-example.json | podman run -i --rm mequal-testing
+$ podman build -t mequal -f ./container_files/Containerfile .
+----
+
+We can then either run Mequal as a CLI tool like below:
+
+[source,bash]
+----
+$ cat input/good/sbom-example.json | podman run -i --rm mequal
+----
+
+Or we can run it as a server:
+
+[source,bash]
+----
+podman run -p 8181:8181 -i --platform=linux/amd64 mequal /bin/bash ./server-run.sh
+----
+
+And then be able to make REST requests to it to query evaluation results:
+
+[source,bash]
+----
+curl -X POST http://localhost:8181/v1/query -d '{ "query": "mequal=data.mequal.main;prodsec=data.prodsec.main" }" }' | jq
 ----
 
 [TIP]
 ====
-The {image-run-script}[./container_files/image-run.sh] script can be edited to decide what should be ran inside the container. It can do evaluations using Conforma or using the OPA client embedded within it, running unit tests, change evaluation parameters, etc.
+A playground is also available for testing out inputs and queries on the OPA server on `http://localhost:8181`
+====
+
+[TIP]
+====
+The {cli-run-script}[./container_files/cli-run.sh] or {server-run-script}[./container_files/server-run.sh] script can be edited to decide what should be ran inside the container. It can do evaluations using the OPA binary within it, running unit tests, change evaluation parameters, etc.
 ====
 
 === b. Run Policy Evaluation Locally
 
-To run the policies locally, we'll need to use the https://github.com/enterprise-contract/ec-cli[Conforma/EC CLI Tool], which is an OPA-based tool that does the policy evaluations inside the container. It also has the OPA CLI Tool embedded within it in case we want to do OPA evaluations, but we can also opt to download the https://github.com/open-policy-agent/opa[OPA CLI Tool separately from here] if we'd like to use a different OPA version.
-
-[TIP]
-====
-Conforma is formerly known as *Enterprise Contract*, which is where the EC abbreviations in the code and documentation comes from. These binaries can be fetched and used automatically using the {local-run-script}[./runme.sh] script in the repo.
-====
-
-Mequal currently relies on helper functions available from https://github.com/enterprise-contract/ec-policies[Conforma/EC policies] in order to generate better output from the policy evaluations and unit testing. *To run the policy evaluations successfully with OPA, we need to download these manually and put them in place.* This can already be done automatically using the {local-run-script}[./runme.sh] script in the repo. *For evaluation using Conforma/EC, these functions are already fetched in the background, so it can immediately be used to start evaluating policies locally.*
-
-By running the script mentioned above, we can immediately download the necessary binaries and helper functions, and start running our policy evaluations locally:
+By running the script below, we can immediately start running our policy evaluations locally:
 
 [source,bash]
 ----
-$ bash ./runme.sh
+$ bash ./hack/local-opa-run.sh
 ----
 
 This script contains commands related to running policy evaluations or unit tests, and can be a reference for running policy evaluations. It can be used as a playground to test out different evaluation commands and parameters.
