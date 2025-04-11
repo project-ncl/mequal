@@ -2,7 +2,7 @@
 
 [TIP]
 ====
-The way we write the policies for Mequal follow the guidelines provided in Conforma/EC, just in a more opionated manner. For more detail on these guidelines, visit the https://conforma.dev/docs/ec-policies/authoring.html[Conforma/EC documentation page].
+The way we write the policies for Mequal follow the guidelines provided in Conforma, just in a more opionated manner and with some additional extensions to it. Even though Mequal is using OPA, this is to make sure our policies remain compatible with Conforma when it comes to validation and gating. For more detail on these guidelines, visit the https://conforma.dev/docs/ec-policies/authoring.html[Conforma documentation page].
 ====
 
 == 1. Basic Concepts for Policy Evaluation
@@ -30,19 +30,15 @@ We store a set of policies packed into a certain hierarchical directory inside o
 
 === e. Policy Metadata (WIP)
 
-In order to represent a policy as code that is compatible for EC/Conforma/OPA evaluation, we need to include a certain amount of metadata related to a policy. A standardized way of representing this required information is a policy metadata schema that each written policy should comply with. (For example, each policy should have a title and description)
+In order to represent a policy as code that is compatible for OPA evaluation, we need to include a certain amount of metadata related to a policy. A standardized way of representing this required information is a policy metadata schema that each written policy should comply with. (For example, each policy should have a title and description)
 
-=== f. Policy Configuration
+=== f. Evaluation Results
 
-The Conforma/EC tool used by Mequal relies on the usage of policy configurations that can point to a specific set of SCM repositories containing policies, so the tooling can fetch them for evaluation in the background. It also supports to include and exclude certain policies from being evaluated directly from the configuration file. It can also exist and be maintained as a Kubernetes resource.
+The evaluation results are the output produced by OPA after running a set of policies against a specific input. They can are in JSON format and contain what denials, warnings or guidance messages have been returned against these policies for a given manifest as input. The results can be context-specific depending on the policies we run. (For example different policy checks for different SBOM versions, SBOM types, etc.)
 
-=== g. Evaluation Results
+The *denial* and *warning* messages help with the validation of the SBOMs to make sure they comply with the policy and fail if there are any policies the SBOM doesn't comply with. These are more related to the basic important rules the SBOM must comply with to be considered valid.
 
-The evaluation results are the output produced by EC/Conforma/OPA after running a set of policies against a specific input. They can can be in either json or yaml format and contain what violations or warnings have been raised against these policies for the input. The results can be context-specific depending on the policies we run. (For example different policy checks for different SBOM versions, SBOM types, etc.)
-
-The violations help with the validation of the SBOMs to make sure they comply with the policy and fail if there are any policies the SBOM doesn't comply with. These are more related to the basic important rules the SBOM must comply with to be considered valid.
-
-The warnings help give feedback against certain policies without necessarily rejecting the SBOM input. They anticipate certain information that every single SBOM may not necessarily need to represent, and provide guidance on how to include this information on the SBOM. It also tries to gauge the quality of the SBOM based on what it expected vs. what is actually found within the SBOM  and gives a grading in the form of levels or points. 
+The *guidance* messages help give feedback against certain policies without necessarily rejecting the SBOM input. They anticipate certain information that every single SBOM may not necessarily need to represent, and provide guidance on how to include this information on the SBOM. It also tries to gauge the quality of the SBOM based on what it expected vs. what is actually found within the SBOM  and gives a grading in the form of levels or points. 
 
 == 2. How to Write Policies
 
@@ -56,23 +52,60 @@ The first practice we should make sure to follow is to keep a directory of polic
 
 [source,bash]
 ----
-sbom
--> cyclonedx
-----> policy1.rego
-----> policy2.rego
--> spdx
-----> policy1.rego
-----> policy2.rego
+example
+-> sbom
+---> cyclonedx
+------> policy1.rego
+------> policy2.rego
+---> spdx
+------> policy1.rego
+------> policy2.rego
+-> main.rego
+-> .manifest
 ----
 
-a .rego file representing `sbom/cyclonedx/policy1.rego` should have
+and a .rego file representing `example/sbom/cyclonedx/policy1.rego` should have
 
-[source,bash]
+[source,rego]
 ----
-import sbom.cyclonedx.policy1
+package example.sbom.cyclonedx.policy1
 ----
 
 defined on top of the file.
+
+Starting from the files on the top level, `.manifest` is a file that defines the metadata as well as the *root* of the policy bundle, which allows for uniquely identifying the policy bundle so it can be conjoined with others later down the line. With a simple definition within in as below:
+
+[source,json]
+----
+{
+    "revision": "v1.0.0",
+    "roots": ["example"]
+}
+----
+
+And as for the `main.rego` file, it is the high-level code that will allow to cleanly return the policy evaluation results, without returning everything at once. It can be defined like below:
+
+[source,rego]
+----
+package example.main
+
+import data.example.sbom
+import rego.v1
+
+violations contains result if {
+	# goes 2 layers deep to get messages for all policies for both cyclonedx and spdx formats.
+	result := sbom[_][_].deny[_]
+}
+
+warnings contains result if {
+	result := sbom[_][_].warn[_]
+}
+
+guidance contains result if {
+	result := sbom[_][_].guide[_]
+}
+
+----
 
 [IMPORTANT]
 ====
@@ -83,7 +116,7 @@ It's important that we define *one policy per file*, with the rules related to t
 
 Let's get started by writing a nice and simple example policy, and then explaining all the important parts of the code.
 
-Let's say we'd like to create a a policy for an SPDX SBOM that checks if the SBOM contains any *packages*. To do this we can create a `packages.rego` file within the directory example above, as `sbom/spdx/packages.rego`
+Let's say we'd like to create a a policy for an SPDX SBOM that checks if the SBOM contains any *packages*. To do this we can create a `packages.rego` file within the directory example above, as `example/sbom/spdx/packages.rego`
 
 As rules for this policy, we can define two of them:
 
@@ -98,10 +131,10 @@ Our file would then look like below:
 # title: SPDX Contains Packages // <1>
 # description: >-
 #   Check if the SPDX SBOM contains any packages. // <2>
-package sbom.spdx.packages // <3>
+package example.sbom.spdx.packages // <3>
 
-import data.lib // <4>
-import data.sbom.util.is_spdx // <5>
+import data.ec.lib // <4>
+import data.example.sbom.is_spdx // <5>
 import rego.v1 // <6>
 
 # Define the prerequisites to check for each policy (i.e. what SBOMs should these policies run on?)
@@ -143,7 +176,7 @@ deny contains result if {
 <2> Each policy requires a *description* as metadata
 <3> *Package import* in line with the directory structure
 <4> *Import the helper functions* from EC/Conforma
-<5> Can *import functions* from other places
+<5> Can *import functions* defined in the policies
 <6> Can add to ensure *rego v1 compatibility*
 <7> All *prerequisite conditions* needed for the evaluation to be performed go into this function
 <8> Each rule within a policy requires a *title* as metadata
@@ -191,18 +224,21 @@ would represent *condition1 OR condition2*
 When writing unit tests for policies, we create a corresponding test file next to the policy we would like to test in whichever folder it's in, as shown below:
 [source,bash]
 ----
-sbom
--> cyclonedx
-----> policy1.rego
-----> policy1_test.rego
--> spdx
-----> policy1.rego
-----> policy1_test.rego
+example
+-> sbom
+---> cyclonedx
+------> policy1.rego
+------> policy1_test.rego
+---> spdx
+------> policy1.rego
+------> policy1_test.rego
+-> main.rego
+-> .manifest
 ----
-a .rego file representing `sbom/cyclonedx/policy1_test.rego` should have
-[source,bash]
+a .rego file representing `example/sbom/cyclonedx/policy1_test.rego` should have
+[source,rego]
 ----
-import sbom.cyclonedx.policy1_test
+package example.sbom.cyclonedx.policy1_test
 ----
 defined on top of the file.
 
@@ -212,17 +248,17 @@ Now let's prepare some unit tests for the example policy we defined in the secti
 
 [source,rego]
 ----
-package sbom.spdx.packages_test // <1>
+package example.sbom.spdx.packages_test // <1>
 
-import data.lib // <2>
-import data.sbom.spdx.packages // <3>
-import data.sbom.util.assert_passes_rules // <4>
-import data.sbom.util.assert_violates_rules
+import data.ec.lib // <2>
+import data.example.sbom.spdx.packages // <3>
+import data.ec.lib.assert_passes_rules // <4>
+import data.ec.lib.assert_violates_rules
 import rego.v1
 
 # Rule IDs we would like to test // <5>
-_rule_spdx_sbom_has_packages_field := "sbom.spdx.packages.spdx_sbom_has_packages_field"
-_rule_spdx_sbom_packages_field_not_empty := "sbom.spdx.packages.spdx_sbom_packages_field_not_empty"
+_rule_spdx_sbom_has_packages_field := "example.sbom.spdx.packages.spdx_sbom_has_packages_field"
+_rule_spdx_sbom_packages_field_not_empty := "example.sbom.spdx.packages.spdx_sbom_packages_field_not_empty"
 
 # Prerequisites // <6>
 
@@ -260,7 +296,7 @@ test_spdx_sbom_has_empty_packages_field if {
 }
 ----
 <1> *Package import* in line with the directory structure
-<2> *Import the helper functions* from EC/Conforma
+<2> *Import the helper functions* used to make the output compatible with Conforma
 <3> *Import the policy package* that we would like to test
 <4> *Import the test assertion functions* to validate if a set of rules pass or fail
 <5> *Define the rules within the package* we want to test. (package directory.short_name)
@@ -271,45 +307,6 @@ test_spdx_sbom_has_empty_packages_field if {
 
 Following the example above, we've now written some unit tests to make sure that the mock SBOM inputs we've prepared either expectedly pass or fail the policy we are testing.
 
-== 4. How to Reference Policies in the Policy Configuration File
-
-Now that we have our policies and our tests in place, we need to make sure that EC/Conforma fetches them correctly for evaluation. Policy configuration files are a way for us to specify certain policies and rules for the tooling to evaluate. By referencing where the policies are located (it can be a git repository, or even a local file directory), and also being able to include and exclude certain policies, we are able to have higher-level control over what policies get considered for evaluation.
-
-=== Where is the Policy Configuration File?
-
-The Mequal container currently uses the {image-policy-config}[`./ec/policy-test.yaml`] configuration file. In order to point it to additional repositories, we can pass our own policies for evaluation by:
-
-- Referencing them from a Git repository using the `git::https://github.com/example/policies.git//subdir?ref=branchname` format
-- Referencing them from a local file directory using the `file::./policydir` formatting
-- Including or excluding certain rules from evaluation using their short_name IDs
-
-Below is an example of what a policy configuration file can look like:
-
-[source,yaml]
-----
-description: Example Policy Configuration
-sources:
-  - name: example-policy-config
-    policy:
-      - "file::./policydir/"
-      - "git::https://github.com/example/policies.git//subdir?ref=branchname"
-    config:
-      include:
-        - "sbom.spdx.packages.spdx_sbom_has_packages_field"
-	  exclude:
-	    - "sbom.spdx.packages.spdx_sbom_packages_field_not_empty"
-----
-
-[TIP]
-====
-More information on policy configuration files can be found in the https://conforma.dev/docs/ecc/index.html[Conforma/EC documentation].
-====
-
-[IMPORTANT]
-====
-Policy Configurations are something specific to Conforma/EC, and not supported if the OPA CLI tool directly is used for evaluation.
-====
-
-== 5. Conclusion
+== 4. Conclusion
 
 Following the practices above, we can now build and run Mequal with our own policies following the instructions in the xref:getting-started:index.adoc[Getting Started] page.
