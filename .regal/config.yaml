@@ -1,0 +1,53 @@
+rules:
+  style:
+    todo-comment:
+      # don't report on todo comments
+      level: ignore
+    line-length:
+      # custom rule configuration
+      max-line-length: 100
+      # warn on too long lines, but don't fail
+      level: warning
+    opa-fmt:
+      # not needed as error is the default, but
+      # being explicit won't hurt
+      level: error
+      # files can be ignored for any individual rule
+      # in this example, test files are ignored
+      ignore:
+        files: []
+  #custom:
+  #  # custom rule configuration
+  #  naming-convention:
+  #    level: error
+  #    conventions:
+  #      # ensure all package names start with "acmecorp" or "system"
+  #      - pattern: '^acmecorp\.[a-z_\.]+$|^system\.[a-z_\.]+$'
+  #        targets:
+  #          - package
+
+capabilities:
+  from:
+    # optionally configure Regal to target a specific version of OPA
+    # this will disable rules that has dependencies to e.g. built-in
+    # functions or features not supported by the given version
+    #
+    # if not provided, Regal will use the capabilities of the latest
+    # version of OPA available at the time of the Regal release
+    engine: opa
+    version: v1.0.0
+
+#ignore:
+#  # files can be excluded from all lint rules according to glob-patterns
+#  files:
+#  - file1.rego
+#  - "*_tmp.rego"
+
+project:
+  roots:
+  - path: policy/EC
+    rego-version: 1
+  - path: policy/mequal
+    rego-version: 1
+  - path: policy/7f5b6d9b2
+    rego-version: 1
