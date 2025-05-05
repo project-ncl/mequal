@@ -1,7 +1,9 @@
 # METADATA
-# title: LPOL1 - Level 0
+# title: SBOM either SPDX or CycloneDX
 # description: >-
 #   SBOM Level grading policy 1. Check if an SBOM is in either SPDX or CycloneDX format
+# custom:
+#   short_name: LPOL1
 package mequal.leveling.L0.LPOL1
 
 import data.ec.lib

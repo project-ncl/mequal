@@ -1,7 +1,10 @@
 # METADATA
-# title: LPOL2 - Level 1
+# title: SBOMs include a version and a bom-ref, has components
 # description: >-
 #   SBOM Level grading policy 2. Check if all packages in the SBOM include a version and a bom-ref, and has components
+# custom:
+#   short_name: LPOL2
+#   severity: High
 package mequal.leveling.L1.cyclonedx.LPOL2
 
 import data.ec.lib

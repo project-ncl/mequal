@@ -1,7 +1,10 @@
 # METADATA
-# title: LPOL2 - Level 1
+# title: All packages in the SBOM include a version
 # description: >-
-#   SBOM Level grading policy 2. Check if all packages in the SBOM include a version
+#   Check if all packages in the SBOM include a version
+# custom:
+#   short_name: LPOL2
+#   severity: High
 package mequal.leveling.L1.spdx.LPOL2
 
 import data.ec.lib

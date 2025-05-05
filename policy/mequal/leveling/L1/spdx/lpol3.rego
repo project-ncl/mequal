@@ -1,7 +1,10 @@
 # METADATA
-# title: LPOL3 - Level 1
+# title: SBOM includes checksums
 # description: >-
-#   Check if all packages in the CycloneDX SBOM include checksums
+#   Check if all packages in the SPDX SBOM include checksums
+# custom:
+#   short_name: LPOL3
+#   severity: High
 package mequal.leveling.L1.spdx.LPOL3
 
 import data.ec.lib
