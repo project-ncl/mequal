@@ -167,13 +167,13 @@ final_output = {"bundles": all_bundles}
 final_output_json_str = json.dumps(final_output, indent=2)
 
 # Define output directory
-output_directory = './bundle'
+output_directory = './policy/main/main/data'
 
 if not os.path.exists(output_directory):
     os.makedirs(output_directory)
 
 # Define the output filename
-output_filename = output_directory + '/bundle_metadata.json' # Keeping filename same as last version
+output_filename = output_directory + '/data.json' # Keeping filename same as last version
 
 # Save the combined data to the output file
 try:
