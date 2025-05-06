@@ -1,6 +1,6 @@
 package main.metadata
 
-import data.bundles
+import data.main.data.bundles
 import rego.v1
 
 default bundles := false
