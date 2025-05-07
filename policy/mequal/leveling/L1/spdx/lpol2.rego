@@ -4,7 +4,8 @@
 #   Check if all packages in the SBOM include a version
 # custom:
 #   short_name: LPOL2
-#   severity: High
+#   severity: error
+#   level: L1
 package mequal.leveling.L1.spdx.LPOL2
 
 import data.ec.lib
@@ -22,12 +23,14 @@ prerequisite if {
 # custom:
 #   short_name: spdx_sbom_has_packages_field
 #   failure_msg: SPDX SBOM does not have a packages field
+#   severity: error
+#   level: L1
 deny contains result if {
 	prerequisite
 	not input.packages
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), []),
-		{"policy_level": "L1", "policy_id": "LPOL2"},
+		{ "extra": {} }
 	)
 }
 
@@ -37,12 +40,14 @@ deny contains result if {
 # custom:
 #   short_name: spdx_sbom_packages_field_not_empty
 #   failure_msg: SPDX SBOM does not have a packages field
+#   severity: error
+#   level: L1
 deny contains result if {
 	prerequisite
 	count(input.packages) == 0
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), []),
-		{"policy_level": "L1", "policy_id": "LPOL2"},
+		{ "extra": {} }
 	)
 }
 
@@ -52,6 +57,8 @@ deny contains result if {
 # custom:
 #   short_name: spdx_sbom_all_components_contain_versions
 #   failure_msg: SPDX SBOM component does not have versionInfo for SPDX ID '%s'
+#   severity: error
+#   level: L1
 deny contains result if {
 	prerequisite
 	some i
@@ -59,6 +66,6 @@ deny contains result if {
 	not pck.versionInfo
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), [pck.SPDXID]),
-		{"policy_level": "L1", "policy_id": "LPOL2"},
+		{ "extra": {} }
 	)
 }

@@ -4,6 +4,7 @@
 #   SBOM Level grading policy 1. Check if an SBOM is in either SPDX or CycloneDX format
 # custom:
 #   short_name: LPOL1
+#   level: L0
 package mequal.leveling.L0.LPOL1
 
 import data.ec.lib
@@ -17,11 +18,13 @@ import rego.v1
 # custom:
 #   short_name: sbom_is_spdx_or_cdx
 #   failure_msg: Input is neither a CycloneDX SBOM nor a SPDX SBOM
+#   severity: error
+#   level: L0
 deny contains result if {
 	not is_spdx
 	not is_cdx
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), []),
-		{"policy_level": "L0", "policy_id": "LPOL1"},
+		{ "extra": {} },
 	)
 }
