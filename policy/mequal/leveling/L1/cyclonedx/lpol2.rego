@@ -4,7 +4,8 @@
 #   SBOM Level grading policy 2. Check if all packages in the SBOM include a version and a bom-ref, and has components
 # custom:
 #   short_name: LPOL2
-#   severity: High
+#   severity: error
+#   level: L1
 package mequal.leveling.L1.cyclonedx.LPOL2
 
 import data.ec.lib
@@ -23,12 +24,14 @@ prerequisite if {
 # custom:
 #   short_name: cdx_sbom_has_empty_components_field
 #   failure_msg: CycloneDX SBOM contains no components
+#   severity: error
+#   level: L1
 deny contains result if {
 	prerequisite
 	count(input.components) < 1
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), []),
-		{"policy_level": "L1", "policy_id": "LPOL2"},
+		{ "extra": {} }
 	)
 }
 
@@ -38,12 +41,14 @@ deny contains result if {
 # custom:
 #   short_name: cdx_sbom_has_no_components_field
 #   failure_msg: CycloneDX SBOM contains no components
+#   severity: error
+#   level: L1
 deny contains result if {
 	prerequisite
 	not input.components
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), []),
-		{"policy_level": "L1", "policy_id": "LPOL2"},
+		{ "extra": {} }
 	)
 }
 
@@ -53,6 +58,8 @@ deny contains result if {
 # custom:
 #   short_name: cdx_sbom_has_top_component_version
 #   failure_msg: CycloneDX SBOM top component (.metadata.component) does NOT contain version
+#   severity: error
+#   level: L1
 deny contains result if {
 	prerequisite
 	not input.metadata.component.version
@@ -68,6 +75,8 @@ deny contains result if {
 # custom:
 #   short_name: cdx_sbom_all_components_contain_versions
 #   failure_msg: CycloneDX SBOM component version missing for bom-ref '%s'
+#   severity: error
+#   level: L1
 deny contains result if {
 	prerequisite
 	some path, value
@@ -77,7 +86,7 @@ deny contains result if {
 	not value.version
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), [value["bom-ref"]]),
-		{"policy_level": "L1", "policy_id": "LPOL2"},
+		{ "extra": {} }
 	)
 }
 
@@ -87,6 +96,8 @@ deny contains result if {
 # custom:
 #   short_name: cdx_sbom_all_components_have_bomref_field
 #   failure_msg: CycloneDX SBOM component bom-ref is missing for purl '%s'
+#   severity: error
+#   level: L1
 deny contains result if {
 	prerequisite
 	some path, value
@@ -98,7 +109,7 @@ deny contains result if {
 	value.purl
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), [value.purl]),
-		{"policy_level": "L1", "policy_id": "LPOL2"},
+		{ "extra": {} }
 	)
 }
 
@@ -108,6 +119,8 @@ deny contains result if {
 # custom:
 #   short_name: cdx_sbom_all_components_have_valid_bomref_value
 #   failure_msg: CycloneDX SBOM component bom-ref is invalid
+#   severity: error
+#   level: L1
 deny contains result if {
 	prerequisite
 	some path, value
@@ -116,7 +129,7 @@ deny contains result if {
 	bomref_is_invalid(value["bom-ref"])
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), []),
-		{"policy_level": "L1", "policy_id": "LPOL2"},
+		{ "extra": {} }
 	)
 }
 
