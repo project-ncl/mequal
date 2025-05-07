@@ -10,8 +10,7 @@ evaluation := {
     # The "rules" field will now contain a flat list of all deny results
     # from all bundles identified by get_available_bundle_packages.
     "rules": [transformed_item |
-        # 1. Get the set of all actual bundle data objects.
-        #    'bundles' here refers to the imported 'data.main.data.bundles'.
+        # 1. Get the set of bundle data objects.
         target_bundle_data_set := [ data.mequal, data.prodsec ]
 
         # 2. Iterate over each bundle data object in the set.
