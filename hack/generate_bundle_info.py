@@ -8,7 +8,7 @@ def process_opa_json(file_path):
     """Processes a single OPA inspection JSON file and returns the bundle object."""
     data = None
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f: # Specify UTF-8 encoding
             data = json.load(f)
     except FileNotFoundError:
         print(f"Warning: File not found at {file_path}. Skipping.")
@@ -56,15 +56,18 @@ def process_opa_json(file_path):
         if ann_scope == 'package':
             # Extract details from the annotation object
             custom_details = ann_details.get('custom', {}) # Safely get custom details
+            
             policy_id = custom_details.get('short_name') if isinstance(custom_details, dict) else None
             policy_title = ann_details.get('title')
             policy_description = ann_details.get('description')
-            # policy_location = annotation.get('location', {}).get('file') # --- REMOVED THIS LINE ---
-
-            # Extract policy_severity from custom.severity, defaulting to "undefined"
+            
             policy_severity = "Undefined" # Default value
             if isinstance(custom_details, dict): # Check if custom_details is a dictionary first
                  policy_severity = custom_details.get('severity', 'Undefined') # Use .get() with default
+            
+            policy_level = "Undefined" # Default value
+            if isinstance(custom_details, dict): # Check if custom_details is a dictionary first
+                 policy_level = custom_details.get('level', 'Undefined') # Use .get() with default
 
             # Generate policy_path from the path array
             path_list = annotation.get('path', [])
@@ -76,28 +79,33 @@ def process_opa_json(file_path):
                     policy_path_str = '.'.join(map(str, path_values)) # Join values as strings
                     package_path_tuple = tuple(path_values) # Use the same values for the tuple key
 
-            # Check if essential fields were found (adjust as needed)
+            # Check if essential fields were found
             if policy_id and policy_title:
                 policy_entry = {
                     "policy_id": policy_id,
                     "policy_title": policy_title,
                     "policy_description": policy_description,
                     "policy_severity": policy_severity,
-                    # "policy_location": policy_location, # --- REMOVED THIS LINE ---
+                    "policy_level": policy_level,
                     "policy_path": policy_path_str,
                     "rules": []
                 }
-                # Append the identified policy
+
+                # --- MODIFICATION: Add other custom fields to policy_entry ---
+                if isinstance(custom_details, dict):
+                    for key, value in custom_details.items():
+                        if key not in ['short_name', 'severity', 'level']: # Avoid overwriting already mapped fields
+                            policy_entry[key] = value
+                # --- END MODIFICATION ---
+
                 output_data["policies"].append(policy_entry)
-                # Use the path tuple for rule mapping
                 if package_path_tuple:
                     policy_map[package_path_tuple] = policy_entry
 
 
-    # Second pass: Identify rules and map them (only if policies were found/processed)
-    if output_data["policies"]: # Optimization: only look for rules if policies exist
-        for annotation in annotations_list: # Use the safe annotations_list
-             # Basic check for annotation structure
+    # Second pass: Identify rules and map them
+    if output_data["policies"]: 
+        for annotation in annotations_list: 
             if not isinstance(annotation, dict): continue
             ann_details = annotation.get('annotations', {})
             if not isinstance(ann_details, dict): continue
@@ -105,32 +113,54 @@ def process_opa_json(file_path):
             ann_scope = ann_details.get('scope')
 
             if ann_scope == 'rule':
-                custom_annotations = ann_details.get('custom', {})
-                if not isinstance(custom_annotations, dict): continue # Ensure custom is a dict
+                custom_annotations = ann_details.get('custom', {}) 
+                if not isinstance(custom_annotations, dict): continue 
 
                 rule_id = custom_annotations.get('short_name')
                 rule_title = ann_details.get('title')
                 rule_description = ann_details.get('description')
+                
+                # --- MODIFICATION: Extract rule_severity ---
+                rule_severity = "Undefined" # Default value
+                if isinstance(custom_annotations, dict):
+                    rule_severity = custom_annotations.get('severity', 'Undefined')
+                # --- END MODIFICATION ---
+
+                # --- MODIFICATION: Extract rule_level ---
+                rule_level = "Undefined" # Default value
+                if isinstance(custom_annotations, dict):
+                    rule_level = custom_annotations.get('level', 'Undefined')
+                # --- END MODIFICATION ---
+
                 rule_path = annotation.get('path', [])
 
                 if rule_id and rule_title and rule_description and isinstance(rule_path, list) and len(rule_path) > 0:
-                     # Determine the package path tuple for mapping
                      package_path_tuple = tuple(item.get('value') for item in rule_path[:-1] if isinstance(item, dict) and 'value' in item)
-                     # Find the corresponding policy using the tuple key
+                     
                      if package_path_tuple in policy_map:
-                         policy_map[package_path_tuple]['rules'].append({
+                         rule_entry = {
                              "rule_id": rule_id,
                              "rule_title": rule_title,
-                             "rule_description": rule_description
-                         })
+                             "rule_description": rule_description,
+                             "rule_severity": rule_severity, # Add rule_severity
+                             "rule_level": rule_level
+                         }
 
-    # --- End of processing logic for one file ---
+                         # --- MODIFICATION: Add other custom fields to rule_entry ---
+                         if isinstance(custom_annotations, dict):
+                             for key, value in custom_annotations.items():
+                                 if key not in ['short_name', 'severity', 'failure_msg', 'rule_level']: # Avoid overwriting
+                                     rule_entry[key] = value
+                         # --- END MODIFICATION ---
+                         
+                         policy_map[package_path_tuple]['rules'].append(rule_entry)
+
     return output_data
 
 # --- Main script execution ---
 
 # !!! IMPORTANT: Set this to the directory containing your JSON files !!!
-target_directory = 'policy_annotations' # Example path - CHANGE THIS
+target_directory = './policy_annotations' # Example path - CHANGE THIS
 
 # Check if the target directory exists
 if not os.path.isdir(target_directory):
@@ -157,7 +187,7 @@ for filename in os.listdir(target_directory):
         elif bundle_object: # If bundle_object exists but has no policies
             print(f"    Skipped bundle from {filename} (No policies found or missing required policy fields)")
         else: # If bundle_object is None (due to read errors etc.)
-             print(f"   Skipped file {filename} due to errors during processing.")
+             print(f"    Skipped file {filename} due to errors during processing.")
 
 
 # Create the final output structure
@@ -167,17 +197,24 @@ final_output = {"bundles": all_bundles}
 final_output_json_str = json.dumps(final_output, indent=2)
 
 # Define output directory
-output_directory = './policy/main/main/data'
+# Ensure this path is correct for your environment
+output_dir_path = './policy/main/main/data' # Example output directory
 
-if not os.path.exists(output_directory):
-    os.makedirs(output_directory)
+if not os.path.exists(output_dir_path):
+    try:
+        os.makedirs(output_dir_path)
+        print(f"Created output directory: {output_dir_path}")
+    except OSError as e:
+        print(f"Error creating output directory {output_dir_path}: {e}")
+        sys.exit(1)
+
 
 # Define the output filename
-output_filename = output_directory + '/data.json' # Keeping filename same as last version
+output_filename = os.path.join(output_dir_path, 'data.json') # Updated filename
 
 # Save the combined data to the output file
 try:
-    with open(output_filename, 'w') as outfile:
+    with open(output_filename, 'w', encoding='utf-8') as outfile: # Specify UTF-8 encoding
         outfile.write(final_output_json_str)
     print(f"\nSuccessfully processed and included {len(all_bundles)} bundle(s) with policies.")
     print(f"Combined results saved to: {output_filename}")
