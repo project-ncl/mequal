@@ -1,4 +1,7 @@
 {
     "revision": "v1.0.0",
-    "roots": ["mequal"]
+    "roots": ["mequal"],
+    "metadata": {
+        "source": "https://github.com/project-ncl/mequal"
+    }
 }

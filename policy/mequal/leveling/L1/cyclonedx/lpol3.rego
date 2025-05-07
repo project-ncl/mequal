@@ -1,7 +1,11 @@
 # METADATA
-# title: LPOL3 - Level 1
+# title: SBOM includes checksums
 # description: >-
 #   Check if all packages in the CycloneDX SBOM include checksums
+# custom:
+#   short_name: LPOL3
+#   severity: error
+#   level: L1
 package mequal.leveling.L1.cyclonedx.LPOL3
 
 import rego.v1
@@ -21,6 +25,8 @@ prerequisite if {
 # custom:
 #   short_name: cdx_sbom_all_components_contain_hashes_field
 #   failure_msg: CycloneDX SBOM component "hashes" field is missing for bom-ref '%s'
+#   severity: error
+#   level: L1
 deny contains result if {
 	prerequisite
 	some path, value
@@ -30,7 +36,7 @@ deny contains result if {
 	not value.hashes
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), [value["bom-ref"]]),
-		{"policy_level": "L1", "policy_id": "LPOL3"},
+		{ "extra": {} }
 	)
 }
 
@@ -40,6 +46,8 @@ deny contains result if {
 # custom:
 #   short_name: cdx_sbom_all_components_contain_hash_values
 #   failure_msg: CycloneDX SBOM component "hashes" field is empty for bom-ref '%s'
+#   severity: error
+#   level: L1
 deny contains result if {
 	prerequisite
 	some path, value
@@ -49,6 +57,6 @@ deny contains result if {
 	count(value.hashes) == 0
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), [value["bom-ref"]]),
-		{"policy_level": "L1", "policy_id": "LPOL3"},
+		{ "extra": {} }
 	)
 }
