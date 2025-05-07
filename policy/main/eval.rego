@@ -1,3 +1,5 @@
+# Partially generated with assistance from a large language model trained by Google.
+
 package main.eval
 
 # concat(".", ["data", data.main.data.bundles[_].bundle_id])
@@ -32,7 +34,7 @@ collected_deny_results(policy_bundle) := [transformed_item |
 
 # Helper to split a "code" string (e.g., "policy.path.part.rule_id")
 # into its constituent policy_path and rule_id parts.
-split_code_string(code_str) := result {
+split_code_string(code_str) := result if {
     parts := split(code_str, ".")
     count(parts) >= 2 # Ensure at least a path part and a rule ID part
 
@@ -49,7 +51,7 @@ split_code_string(code_str) := result {
 
 # Helper to find bundle_id, policy_id, and policy_severity
 # from the `all_bundles` data (data.main.data.bundles) using the `target_policy_path`.
-find_policy_metadata(target_policy_path, all_bundles) := metadata {
+find_policy_metadata(target_policy_path, all_bundles) := metadata if {
     # 'all_bundles' is expected to be the array from data.main.data.bundles
     # Ensure 'all_bundles' is actually an array before trying to index it.
     # This check can be added here or rely on correct data loading.
@@ -71,7 +73,7 @@ find_policy_metadata(target_policy_path, all_bundles) := metadata {
 
 # Helper function to check if a policy_path exists in the metadata.
 # Used by the fallback rule for find_policy_metadata.
-policy_path_exists(target_policy_path, all_bundles) {
+policy_path_exists(target_policy_path, all_bundles) if {
     some i, j
     bundle := all_bundles[i]
     policy := bundle.policies[j]
