@@ -2,11 +2,29 @@
 
 package main.eval
 
-# concat(".", ["data", data.main.data.bundles[_].bundle_id])
+import data.main.data.bundles
+import rego.v1
 
 # Main evaluation rule to generate the desired "evaluation" output object
 evaluation := {
-    "rules": collected_deny_results(data.mequal),
+    # The "rules" field will now contain a flat list of all deny results
+    # from all bundles identified by get_available_bundle_packages.
+    "rules": [transformed_item |
+        # 1. Get the set of all actual bundle data objects.
+        #    'bundles' here refers to the imported 'data.main.data.bundles'.
+        target_bundle_data_set := [ data.mequal, data.prodsec ]
+
+        # 2. Iterate over each bundle data object in the set.
+        current_bundle_data := target_bundle_data_set[_]
+
+        # 3. For each bundle data object, get its deny results 
+        #    (which is a list of transformed items).
+        results_from_current_bundle := collected_deny_results(current_bundle_data)
+
+        # 4. Iterate over each transformed_item in that list and add it to the 
+        #    final 'evaluation.rules' list.
+        transformed_item := results_from_current_bundle[_]
+    ]
 }
 
 # Collect all "deny" messages
@@ -16,7 +34,7 @@ collected_deny_results(policy_bundle) := [transformed_item |
     message_object := node_value[_]
     is_object(message_object)
     parsed_code := split_code_string(message_object.code)
-    policy_details := find_policy_metadata(parsed_code.policy_path, data.main.data.bundles)
+    policy_details := find_policy_metadata(parsed_code.policy_path, parsed_code.rule_id, bundles)
     transformed_item := {
         "message": message_object.msg,
         "bundle_id": policy_details.bundle_id,
@@ -51,7 +69,7 @@ split_code_string(code_str) := result if {
 
 # Helper to find bundle_id, policy_id, and policy_severity
 # from the `all_bundles` data (data.main.data.bundles) using the `target_policy_path`.
-find_policy_metadata(target_policy_path, all_bundles) := metadata if {
+find_policy_metadata(target_policy_path, target_rule_id, all_bundles) := metadata if {
     # 'all_bundles' is expected to be the array from data.main.data.bundles
     # Ensure 'all_bundles' is actually an array before trying to index it.
     # This check can be added here or rely on correct data loading.
@@ -61,6 +79,7 @@ find_policy_metadata(target_policy_path, all_bundles) := metadata if {
     policy := bundle.policies[j]
     rule := bundle.policies[j].rules[k]
     policy.policy_path == concat(".", ["data", target_policy_path]) # Match the policy_path
+    rule.rule_id == target_rule_id
     metadata := {
         "bundle_id": bundle.bundle_id,
         "policy_id": policy.policy_id,
@@ -79,4 +98,3 @@ policy_path_exists(target_policy_path, all_bundles) if {
     policy := bundle.policies[j]
     policy.policy_path == target_policy_path
 }
-
