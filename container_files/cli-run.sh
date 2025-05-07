@@ -13,7 +13,7 @@ BUNDLE_PATH=./bundle/mequal_policies.tar.gz
 POLICY_PATH=./policy
 
 #Evalulate policies against this file
-output=`${OPA} eval --bundle $BUNDLE_PATH --input ./input.json -f json "data.main.metadata"`
+output=`${OPA} eval --bundle $BUNDLE_PATH --input ./input.json -f json "data.main.full"`
 
 echo $output | jq '[.result[0].expressions[].value] | add'
 # echo $output | jq
