@@ -1,3 +1,5 @@
+# Generated with assistance from a large language model trained by Google.
+
 import json
 import os
 
