@@ -11,7 +11,10 @@ evaluation := {
     # from all bundles identified by get_available_bundle_packages.
     "rules": [transformed_item |
         # 1. Get the set of bundle data objects.
-        target_bundle_data_set := [ data.mequal, data.prodsec ]
+        target_bundle_data_set := [ data[bmd.bundle_id].policies | # e.g., data.mequal.policies, data.prodsec.policies
+                                    bmd := bundles[_];              # Iterate through items in the imported 'bundles' metadata array
+                                    _ = data[bmd.bundle_id].policies # Ensure this path exists
+                                  ]
 
         # 2. Iterate over each bundle data object in the set.
         current_bundle_data := target_bundle_data_set[_]
