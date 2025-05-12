@@ -1,103 +1,145 @@
-# Generated with assistance from a large language model trained by Google.
-
 import json
-import sys
+import os
 
-def generate_adoc(data, output_filename):
-    """Generates an AsciiDoc file from the policy metadata JSON."""
-    adoc_lines = []
+def generate_asciidoc(data):
+    """
+    Generates a prettier AsciiDoc documentation from the bundle metadata.
+    """
+    asciidoc_lines = []
 
-    # Main document title
-    adoc_lines.append("= Policy Bundles included in Mequal")
-    adoc_lines.append("\n") # Add a blank line after the main title
+    asciidoc_lines.append("= Policy Bundle Documentation")
+    asciidoc_lines.append(":toc: left")
+    asciidoc_lines.append(":toclevels: 4") # Increased to include H5 for rules
+    asciidoc_lines.append(":sectnums:")
+    asciidoc_lines.append(":source-highlighter: rouge") # Optional: for syntax highlighting if you add code blocks later
+    asciidoc_lines.append("TIP: Use Ctrl+Click or Cmd+Click on Table of Contents entries to navigate.")
+    asciidoc_lines.append("") # Blank line after document header attributes
 
-    bundles = data.get("bundles", [])
-    if not bundles:
-        adoc_lines.append("No policy bundles found in the input data.")
-        print("Warning: No bundles found in the JSON data.")
+    if "bundles" not in data or not isinstance(data["bundles"], list):
+        asciidoc_lines.append("_No bundles found in the JSON data._")
+        return "\n".join(asciidoc_lines)
 
-    for bundle in bundles:
-        bundle_id = bundle.get("bundle_id", "N/A")
+    for bundle_idx, bundle in enumerate(data["bundles"]):
+        bundle_id = bundle.get("bundle_id", f"Unnamed Bundle {bundle_idx+1}")
         bundle_version = bundle.get("bundle_version", "N/A")
         bundle_source = bundle.get("source")
 
-        # Bundle Header (Level 2)
-        adoc_lines.append(f"== Bundle: {bundle_id} ({bundle_version})")
-        adoc_lines.append("\n")
+        asciidoc_lines.append(f"== Bundle: `{bundle_id}`") # Bundle ID in backticks
+        asciidoc_lines.append("")
+        asciidoc_lines.append(f"*Version:* `{bundle_version}`")
         if bundle_source:
-            adoc_lines.append(f"Source: {bundle_source}")
-            adoc_lines.append("\n")
+            asciidoc_lines.append(f"*Source:* link:{bundle_source}[{bundle_source}]")
+        asciidoc_lines.append("") # Blank line after bundle header
 
-        policies = bundle.get("policies", [])
-        if not policies:
-            adoc_lines.append("_No policies defined in this bundle._")
-            adoc_lines.append("\n")
-            continue # Skip to the next bundle if no policies
+        if "policies" not in bundle or not isinstance(bundle["policies"], list) or not bundle["policies"]:
+            asciidoc_lines.append("_No policies found in this bundle._")
+            asciidoc_lines.append("")
+            continue
 
-        for policy in policies:
+        for policy_idx, policy in enumerate(bundle["policies"]):
+            policy_title = policy.get("policy_title", f"Untitled Policy {policy_idx+1}")
             policy_id = policy.get("policy_id", "N/A")
-            policy_title = policy.get("policy_title", "N/A")
-            policy_description = policy.get("policy_description", "_No description provided._")
-            policy_severity = policy.get("policy_severity", "undefined")
-            policy_path = policy.get("policy_path")
+            policy_severity = policy.get("policy_severity", "Undefined")
+            policy_level = policy.get("policy_level", "Undefined")
+            policy_path = policy.get("policy_path", "N/A")
+            policy_description = policy.get("policy_description", "").strip()
 
-            # Policy Header (Level 3)
-            adoc_lines.append(f"=== Policy: {policy_title} (`{policy_id}`)") # Use backticks for code style ID
-            adoc_lines.append("\n")
+            asciidoc_lines.append(f"=== Policy: {policy_title} (`{policy_id}`)")
+            asciidoc_lines.append("") # Blank line after policy title
 
-            # Policy Details
-            adoc_lines.append(policy_description)
-            adoc_lines.append("\n")
-            adoc_lines.append(f"*Severity:* {policy_severity}")
-            if policy_path:
-                adoc_lines.append(f"*Rego Path:* `{policy_path}`") # Use backticks for code style path
-            adoc_lines.append("\n")
-
-
-            rules = policy.get("rules", [])
-            if rules:
-                # Rules Subheading (Level 4)
-                adoc_lines.append("==== Rules")
-                adoc_lines.append("\n")
-                # Rules List
-                for rule in rules:
-                    rule_id = rule.get("rule_id", "N/A")
-                    rule_title = rule.get("rule_title", "N/A")
-                    rule_description = rule.get("rule_description", "_No description provided._")
-                    # Use bullet points for rules
-                    adoc_lines.append(f"* *{rule_title}* (`{rule_id}`): {rule_description}")
-                adoc_lines.append("\n") # Blank line after rules list
+            # Policy Attributes
+            asciidoc_lines.append(f"*Severity:* `{policy_severity}`")
+            asciidoc_lines.append(f"*Level:* `{policy_level}`")
+            if policy_path != "N/A":
+                asciidoc_lines.append(f"*Path:* `{policy_path}`")
+            asciidoc_lines.append("") # Blank line after attributes
+            
+            # Policy Description
+            if policy_description:
+                asciidoc_lines.append(policy_description)
+                asciidoc_lines.append("") 
             else:
-                adoc_lines.append("_No specific rules defined for this policy._")
-                adoc_lines.append("\n")
+                asciidoc_lines.append("_No description provided._")
+                asciidoc_lines.append("")
 
-    # --- Write to file ---
+            # Rules Section
+            if "rules" not in policy or not isinstance(policy["rules"], list) or not policy["rules"]:
+                asciidoc_lines.append("_No rules defined for this policy._")
+                asciidoc_lines.append("")
+            else:
+                asciidoc_lines.append("==== Rules") # Sub-section for all rules of this policy
+                asciidoc_lines.append("")
+            
+                for rule_idx, rule in enumerate(policy["rules"]):
+                    rule_title = rule.get("rule_title", f"Untitled Rule {rule_idx+1}")
+                    rule_id = rule.get("rule_id", "N/A")
+                    rule_severity = rule.get("rule_severity", "Undefined")
+                    rule_level = rule.get("rule_level", "Undefined")
+                    rule_description = rule.get("rule_description", "").strip()
+                    grading_level = rule.get("level") 
+
+                    # Each rule is now its own H5 subsection
+                    asciidoc_lines.append(f"===== Rule: {rule_title} (`{rule_id}`)")
+                    asciidoc_lines.append("") # Blank line after rule title
+
+                    # Rule Attributes
+                    asciidoc_lines.append(f"*Severity:* `{rule_severity}`")
+                    asciidoc_lines.append(f"*Level:* `{rule_level}`")
+                    if grading_level: # Show grading level if present
+                         asciidoc_lines.append(f"*Grading Context Level:* `{grading_level}`")
+                    asciidoc_lines.append("") # Blank line after attributes
+
+                    # Rule Description
+                    if rule_description:
+                        asciidoc_lines.append(rule_description)
+                        asciidoc_lines.append("")
+                    else:
+                        asciidoc_lines.append("_No rule description provided._")
+                        asciidoc_lines.append("")
+            
+            # Add a horizontal rule for major separation between policies
+            if policy_idx < len(bundle["policies"]) - 1:
+                asciidoc_lines.append("'''") # Horizontal rule
+                asciidoc_lines.append("")
+
+        # Blank line after all policies of a bundle (if there were policies)
+        if bundle.get("policies"): # Check if policies list was not empty
+             asciidoc_lines.append("")
+
+
+    return "\n".join(asciidoc_lines)
+
+def main():
+    input_filename = './bundle/bundle_metadata.json'
+    output_filename = './docs/modules/policies/pages/index.adoc'
+
     try:
-        with open(output_filename, 'w', encoding='utf-8') as f:
-            f.write("\n".join(adoc_lines))
-        print(f"Successfully generated AsciiDoc file: {output_filename}")
+        with open(input_filename, 'r', encoding='utf-8') as f:
+            json_data = json.load(f)
+    except FileNotFoundError:
+        print(f"Error: Input file '{input_filename}' not found.")
+        print(f"Please ensure your JSON file is located at this path.")
+        return
+    except json.JSONDecodeError as e:
+        print(f"Error: Could not decode JSON from '{input_filename}'. Invalid JSON format: {e}")
+        return
     except Exception as e:
-        print(f"Error writing AsciiDoc file {output_filename}: {e}")
+        print(f"An unexpected error occurred while reading the input file: {e}")
+        return
 
-# --- Main script execution ---
+    asciidoc_content = generate_asciidoc(json_data)
 
-input_json_file = './bundle/bundle_metadata.json' # Input file generated by the previous script
-output_adoc_file = 'docs/modules/policies/pages/index.adoc'  # Output AsciiDoc file
+    try:
+        output_dir = os.path.dirname(output_filename)
+        if output_dir: 
+            os.makedirs(output_dir, exist_ok=True)
 
-# Load the JSON data
-try:
-    with open(input_json_file, 'r') as f:
-        policy_data = json.load(f)
-except FileNotFoundError:
-    print(f"Error: Input JSON file not found: {input_json_file}")
-    sys.exit(1)
-except json.JSONDecodeError:
-    print(f"Error: Could not decode JSON from {input_json_file}")
-    sys.exit(1)
-except Exception as e:
-    print(f"An unexpected error occurred reading {input_json_file}: {e}")
-    sys.exit(1)
+        with open(output_filename, 'w', encoding='utf-8') as f:
+            f.write(asciidoc_content)
+        print(f"AsciiDoc documentation generated successfully: {output_filename}")
 
-# Generate the AsciiDoc content
-if policy_data:
-    generate_adoc(policy_data, output_adoc_file)
+    except Exception as e:
+        print(f"An error occurred while writing the output file: {e}")
+
+if __name__ == "__main__":
+    main()
