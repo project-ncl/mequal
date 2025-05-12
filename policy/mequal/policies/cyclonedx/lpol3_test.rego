@@ -1,14 +1,14 @@
-package mequal.leveling.L1.cyclonedx.LPOL3_test
+package mequal.policies.cyclonedx.LPOL3_test
 
 import data.ec.lib
 import data.ec.lib.util.assert_passes_rules
 import data.ec.lib.util.assert_violates_rules
-import data.mequal.leveling.L1.cyclonedx.LPOL3
+import data.mequal.policies.cyclonedx.LPOL3
 import rego.v1
 
-_rule_cdx_sbom_all_components_contain_hashes_field := "mequal.leveling.L1.cyclonedx.LPOL3.cdx_sbom_all_components_contain_hashes_field"
+_rule_cdx_sbom_all_components_contain_hashes_field := "mequal.policies.cyclonedx.LPOL3.cdx_sbom_all_components_contain_hashes_field"
 
-_rule_cdx_sbom_all_components_contain_hash_values := "mequal.leveling.L1.cyclonedx.LPOL3.cdx_sbom_all_components_contain_hash_values"
+_rule_cdx_sbom_all_components_contain_hash_values := "mequal.policies.cyclonedx.LPOL3.cdx_sbom_all_components_contain_hash_values"
 
 # Prerequisites
 

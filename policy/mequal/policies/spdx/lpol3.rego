@@ -6,7 +6,7 @@
 #   short_name: LPOL3
 #   severity: error
 #   level: L1
-package mequal.leveling.L1.spdx.LPOL3
+package mequal.policies.spdx.LPOL3
 
 import data.ec.lib
 import data.ec.lib.util.is_spdx

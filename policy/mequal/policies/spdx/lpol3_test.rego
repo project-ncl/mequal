@@ -1,14 +1,14 @@
-package mequal.leveling.L1.spdx.LPOL3_test
+package mequal.policies.spdx.LPOL3_test
 
 import data.ec.lib
 import data.ec.lib.util.assert_passes_rules
 import data.ec.lib.util.assert_violates_rules
-import data.mequal.leveling.L1.spdx.LPOL3
+import data.mequal.policies.spdx.LPOL3
 import rego.v1
 
-_rule_spdx_sbom_all_components_contain_checksums_field := "mequal.leveling.L1.spdx.LPOL3.spdx_sbom_all_components_contain_checksums_field"
+_rule_spdx_sbom_all_components_contain_checksums_field := "mequal.policies.spdx.LPOL3.spdx_sbom_all_components_contain_checksums_field"
 
-_rule_spdx_sbom_all_components_contain_checksums_values := "mequal.leveling.L1.spdx.LPOL3.spdx_sbom_all_components_contain_checksums_values"
+_rule_spdx_sbom_all_components_contain_checksums_values := "mequal.policies.spdx.LPOL3.spdx_sbom_all_components_contain_checksums_values"
 
 # If not an SPDX, make sure no rules in this policy are evaluated (i.e. don't return violations)
 test_prerequisite if {

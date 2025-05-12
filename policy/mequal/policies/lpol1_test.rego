@@ -1,12 +1,12 @@
-package mequal.leveling.L0.LPOL1_test
+package mequal.policies.LPOL1_test
 
 import data.ec.lib
 import data.ec.lib.util.assert_passes_rules
 import data.ec.lib.util.assert_violates_rules
-import data.mequal.leveling.L0.LPOL1
+import data.mequal.policies.LPOL1
 import rego.v1
 
-_rule_sbom_is_spdx_or_cdx := "mequal.leveling.L0.LPOL1.sbom_is_spdx_or_cdx"
+_rule_sbom_is_spdx_or_cdx := "mequal.policies.LPOL1.sbom_is_spdx_or_cdx"
 
 test_sbom_is_cdx if {
 	sbom := {"bomFormat": "CycloneDX"}
