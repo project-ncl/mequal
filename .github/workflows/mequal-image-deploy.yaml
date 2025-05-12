@@ -22,7 +22,7 @@ jobs:
           password: ${{ secrets.QUAY_PASSWORD }}
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.QUAY_REPO }}:${{ github.sha }} -t ${{ secrets.QUAY_REPO }}:latest -f ./container_files/Containerfile .
+        run: docker build --build-arg MANIFEST_REVISION=${{ github.sha }} -t ${{ secrets.QUAY_REPO }}:${{ github.sha }} -t ${{ secrets.QUAY_REPO }}:latest -f ./container_files/Containerfile .
 
       - name: Push to Quay
         run: docker push ${{ secrets.QUAY_REPO }} --all-tags
