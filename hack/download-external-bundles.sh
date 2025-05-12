@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/env bash
 
 # Generated with assistance from a large language model trained by Google.
 

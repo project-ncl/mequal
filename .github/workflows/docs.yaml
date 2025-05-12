@@ -26,6 +26,9 @@ jobs:
         with:
           version: 1.2.0
 
+      - name: Download external policy bundles
+        run: ./hack/download-external-bundles.sh
+
       - name: Generate policy annotation objects using OPA
         env:
           OPA: "opa"
