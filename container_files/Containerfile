@@ -1,5 +1,6 @@
 FROM registry.access.redhat.com/ubi9/ubi@sha256:53d6c19d664f4f418ce5c823d3a33dbb562a2550ea249cf07ef10aa063ace38f
 
+ARG MANIFEST_REVISION=latest
 EXPOSE 8181
 WORKDIR /home/mequal
 
@@ -18,8 +19,8 @@ COPY ./hack/ ./hack/
 COPY ./config/ ./config/
 
 # get prodsec external policies
-RUN bash ./hack/download-external-bundles.sh \
-    && bash ./hack/manifest_revision.sh \
+RUN bash ./hack/manifest_revision.sh $MANIFEST_REVISION \
+    && bash ./hack/download-external-bundles.sh \
     && bash ./hack/annotations-generate.sh \
     && python ./hack/generate_bundle_info.py \
     && ./opa build -b $(ls -d -- ./policy/*/) -o ./bundle/mequal_policies.tar.gz

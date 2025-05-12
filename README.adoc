@@ -50,7 +50,7 @@ We can also build the image locally from the root directory using the command be
 
 [source,bash]
 ----
-podman build -t mequal -f ./container_files/Containerfile .
+podman build --build-arg MANIFEST_REVISION=$(git rev-parse --short HEAD) -t mequal -f ./container_files/Containerfile . 
 ----
 and then run:
 [source,bash]

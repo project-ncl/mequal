@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Script to update the 'revision' field in *.manifest.json files
-# tracked by Git to the current Git commit short hash.
+# to a specified revision or the current Git commit short hash.
+# If a revision argument is provided, it uses 'find' to locate files.
+# Otherwise, it uses 'git ls-files' to find files tracked by Git.
 
 # Exit immediately if a command exits with a non-zero status.
 set -e
@@ -18,45 +20,59 @@ then
     exit 1
 fi
 
-# 2. Check if we are in a git repository
-if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
-    echo "Error: Not inside a Git repository." >&2
+# 2. Check if we are in a git repository (only needed if not providing revision)
+if [ -z "$1" ] && ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+    echo "Error: Not inside a Git repository and no revision argument provided." >&2
     exit 1
 fi
 
 # --- Main Logic ---
-# 3. Get the current Git revision (short hash)
-CURRENT_REVISION=$(git rev-parse --short HEAD)
-if [ $? -ne 0 ]; then
-    echo "Error: Failed to get current Git revision." >&2
-    exit 1
+# 3. Determine the Git revision to use
+if [ -n "$1" ]; then
+    # Use the first command-line argument if provided
+    CURRENT_REVISION="$1"
+    USE_FIND=true
+    echo "Using provided revision: $CURRENT_REVISION"
+    echo "Using 'find' to locate files..."
+else
+    # Otherwise, get the current Git revision (short hash)
+    CURRENT_REVISION=$(git rev-parse --short HEAD)
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to get current Git revision." >&2
+        exit 1
+    fi
+    USE_FIND=false
+    echo "Using current Git Revision: $CURRENT_REVISION"
+    echo "Using 'git ls-files' to locate files..."
 fi
-echo "Current Git Revision: $CURRENT_REVISION"
 
-# 4. Find all *.manifest.json files tracked by Git and loop through them
+
+# 4. Find and update files based on whether a revision was provided
 echo "Finding and updating files ending with ${MANIFEST_SUFFIX}..."
-# Use git ls-files to find relevant files tracked by git
-# Use process substitution and while read loop for safer filename handling
-while IFS= read -r file; do
-    # Check if the file actually exists locally (it might be deleted but still in index)
+
+process_file() {
+    local file="$1"
+    local revision="$2"
+    # Check if the file actually exists locally (relevant for both find and git ls-files)
     if [ ! -f "$file" ]; then
-        echo "Warning: File '$file' listed by git ls-files does not exist locally. Skipping."
-        continue
+        echo "Warning: File '$file' does not exist locally or is not a regular file. Skipping."
+        return
     fi
 
     echo "Processing file: $file"
     # Create a temporary file for jq output in the same directory to handle permissions/mounts better
+    local TMP_FILE
     TMP_FILE=$(mktemp "${file}.tmp.XXXXXX")
     if [ $? -ne 0 ]; then
         echo "Error: Failed to create temporary file for $file. Skipping." >&2
-        continue # Skip to the next file
+        return # Skip to the next file
     fi
 
     # Use jq to update the revision field
     # Pass the git revision as a variable ($rev) to jq
     # The '.revision = $rev' expression updates the value of the 'revision' key
-    jq --arg rev "$CURRENT_REVISION" '.revision = $rev' "$file" > "$TMP_FILE"
-    JQ_EXIT_CODE=$?
+    jq --arg rev "$revision" '.revision = $rev' "$file" > "$TMP_FILE"
+    local JQ_EXIT_CODE=$?
 
     if [ $JQ_EXIT_CODE -eq 0 ]; then
         # Optional: Basic check if jq produced valid JSON output
@@ -65,7 +81,7 @@ while IFS= read -r file; do
             cat "$TMP_FILE" > "$file"
             # Remove the temporary file
             rm "$TMP_FILE"
-            echo "  Updated revision in $file to $CURRENT_REVISION"
+            echo "  Updated revision in $file to $revision"
         else
             echo "Error: jq produced invalid JSON for $file. Original file not modified." >&2
             rm "$TMP_FILE" # Clean up temp file
@@ -75,8 +91,21 @@ while IFS= read -r file; do
         # Attempt to remove the temp file even if jq failed
         rm "$TMP_FILE" &> /dev/null || true
     fi
-# Feed the loop with filenames from git ls-files, ensuring correct handling of paths
-done < <(git ls-files "*${MANIFEST_SUFFIX}")
+}
+
+if [ "$USE_FIND" = true ]; then
+    # Use find when a revision argument is provided
+    # Use -print0 and read -d $'\0' for safe handling of filenames with special characters/spaces
+    while IFS= read -d $'\0' -r file; do
+        process_file "$file" "$CURRENT_REVISION"
+    done < <(find . -name "*${MANIFEST_SUFFIX}" -type f -print0)
+else
+    # Use git ls-files when no revision argument is provided
+    # Use process substitution and while read loop for safer filename handling
+    while IFS= read -r file; do
+        process_file "$file" "$CURRENT_REVISION"
+    done < <(git ls-files "*${MANIFEST_SUFFIX}")
+fi
 
 echo "Script finished."
 exit 0
