@@ -21,6 +21,22 @@ jobs:
         with:
           node-version: 23
 
+      - name: Setup OPA
+        uses: open-policy-agent/setup-opa@v2
+        with:
+          version: 1.2.0
+
+      - name: Generate policy annotation objects using OPA
+        env:
+          OPA: "opa"
+        run: ./hack/annotations-generate.sh
+
+      - name: Generate policy bundle metadata object from annotations
+        run: python ./hack/generate_bundle_info.py
+
+      - name: Generate policy documentation from metadata object
+        run: python ./hack/docs_policy_bundles.py
+
       - name: Prepare dependencies
         run: npm ci --cache .npm --prefer-offline
 
