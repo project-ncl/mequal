@@ -25,6 +25,6 @@ deny contains result if {
 	not is_cdx
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), []),
-		{ "extra": {} },
+		{"extra": {}},
 	)
 }

@@ -27,7 +27,7 @@ deny contains result if {
 	not pck.checksums
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), [pck.SPDXID]),
-		{ "extra": {} }
+		{"extra": {}},
 	)
 }
 
@@ -45,6 +45,6 @@ deny contains result if {
 	count(pck.checksums) == 0
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), [pck.SPDXID]),
-		{ "extra": {} }
+		{"extra": {}},
 	)
 }

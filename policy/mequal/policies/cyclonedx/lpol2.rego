@@ -31,7 +31,7 @@ deny contains result if {
 	count(input.components) < 1
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), []),
-		{ "extra": {} }
+		{"extra": {}},
 	)
 }
 
@@ -48,7 +48,7 @@ deny contains result if {
 	not input.components
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), []),
-		{ "extra": {} }
+		{"extra": {}},
 	)
 }
 
@@ -86,7 +86,7 @@ deny contains result if {
 	not value.version
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), [value["bom-ref"]]),
-		{ "extra": {} }
+		{"extra": {}},
 	)
 }
 
@@ -109,7 +109,7 @@ deny contains result if {
 	value.purl
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), [value.purl]),
-		{ "extra": {} }
+		{"extra": {}},
 	)
 }
 
@@ -129,7 +129,7 @@ deny contains result if {
 	bomref_is_invalid(value["bom-ref"])
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), []),
-		{ "extra": {} }
+		{"extra": {}},
 	)
 }
 
