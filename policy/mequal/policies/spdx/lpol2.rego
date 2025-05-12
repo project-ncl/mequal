@@ -30,7 +30,7 @@ deny contains result if {
 	not input.packages
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), []),
-		{ "extra": {} }
+		{"extra": {}},
 	)
 }
 
@@ -47,7 +47,7 @@ deny contains result if {
 	count(input.packages) == 0
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), []),
-		{ "extra": {} }
+		{"extra": {}},
 	)
 }
 
@@ -66,6 +66,6 @@ deny contains result if {
 	not pck.versionInfo
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), [pck.SPDXID]),
-		{ "extra": {} }
+		{"extra": {}},
 	)
 }

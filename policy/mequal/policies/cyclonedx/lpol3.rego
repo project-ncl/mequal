@@ -36,7 +36,7 @@ deny contains result if {
 	not value.hashes
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), [value["bom-ref"]]),
-		{ "extra": {} }
+		{"extra": {}},
 	)
 }
 
@@ -57,6 +57,6 @@ deny contains result if {
 	count(value.hashes) == 0
 	result := object.union(
 		lib.result_helper(rego.metadata.chain(), [value["bom-ref"]]),
-		{ "extra": {} }
+		{"extra": {}},
 	)
 }
