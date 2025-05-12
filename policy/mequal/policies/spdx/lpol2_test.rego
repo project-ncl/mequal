@@ -1,16 +1,16 @@
-package mequal.leveling.L1.spdx.LPOL2_test
+package mequal.policies.spdx.LPOL2_test
 
 import data.ec.lib
 import data.ec.lib.util.assert_passes_rules
 import data.ec.lib.util.assert_violates_rules
-import data.mequal.leveling.L1.spdx.LPOL2
+import data.mequal.policies.spdx.LPOL2
 import rego.v1
 
-_rule_spdx_sbom_all_components_contain_versions := "mequal.leveling.L1.spdx.LPOL2.spdx_sbom_all_components_contain_versions"
+_rule_spdx_sbom_all_components_contain_versions := "mequal.policies.spdx.LPOL2.spdx_sbom_all_components_contain_versions"
 
-_rule_spdx_sbom_has_packages_field := "mequal.leveling.L1.spdx.LPOL2.spdx_sbom_has_packages_field"
+_rule_spdx_sbom_has_packages_field := "mequal.policies.spdx.LPOL2.spdx_sbom_has_packages_field"
 
-_rule_spdx_sbom_packages_field_not_empty := "mequal.leveling.L1.spdx.LPOL2.spdx_sbom_packages_field_not_empty"
+_rule_spdx_sbom_packages_field_not_empty := "mequal.policies.spdx.LPOL2.spdx_sbom_packages_field_not_empty"
 
 # Prerequisites
 

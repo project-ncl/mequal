@@ -5,7 +5,7 @@
 # custom:
 #   short_name: LPOL1
 #   level: L0
-package mequal.leveling.L0.LPOL1
+package mequal.policies.LPOL1
 
 import data.ec.lib
 import data.ec.lib.util.is_cdx

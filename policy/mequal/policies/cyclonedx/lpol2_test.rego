@@ -1,22 +1,22 @@
-package mequal.leveling.L1.cyclonedx.LPOL2_test
+package mequal.policies.cyclonedx.LPOL2_test
 
 import data.ec.lib
 import data.ec.lib.util.assert_passes_rules
 import data.ec.lib.util.assert_violates_rules
-import data.mequal.leveling.L1.cyclonedx.LPOL2
+import data.mequal.policies.cyclonedx.LPOL2
 import rego.v1
 
-_rule_cdx_sbom_has_no_components_field := "mequal.leveling.L1.cyclonedx.LPOL2.cdx_sbom_has_no_components_field"
+_rule_cdx_sbom_has_no_components_field := "mequal.policies.cyclonedx.LPOL2.cdx_sbom_has_no_components_field"
 
-_rule_cdx_sbom_has_empty_components_field := "mequal.leveling.L1.cyclonedx.LPOL2.cdx_sbom_has_empty_components_field"
+_rule_cdx_sbom_has_empty_components_field := "mequal.policies.cyclonedx.LPOL2.cdx_sbom_has_empty_components_field"
 
-_rule_cdx_sbom_all_components_contain_versions := "mequal.leveling.L1.cyclonedx.LPOL2.cdx_sbom_all_components_contain_versions"
+_rule_cdx_sbom_all_components_contain_versions := "mequal.policies.cyclonedx.LPOL2.cdx_sbom_all_components_contain_versions"
 
-_rule_cdx_sbom_has_top_component_version := "mequal.leveling.L1.cyclonedx.LPOL2.cdx_sbom_has_top_component_version"
+_rule_cdx_sbom_has_top_component_version := "mequal.policies.cyclonedx.LPOL2.cdx_sbom_has_top_component_version"
 
-_rule_cdx_sbom_all_components_have_bomref_field := "mequal.leveling.L1.cyclonedx.LPOL2.cdx_sbom_all_components_have_bomref_field"
+_rule_cdx_sbom_all_components_have_bomref_field := "mequal.policies.cyclonedx.LPOL2.cdx_sbom_all_components_have_bomref_field"
 
-_rule_cdx_sbom_all_components_have_valid_bomref_value := "mequal.leveling.L1.cyclonedx.LPOL2.cdx_sbom_all_components_have_valid_bomref_value"
+_rule_cdx_sbom_all_components_have_valid_bomref_value := "mequal.policies.cyclonedx.LPOL2.cdx_sbom_all_components_have_valid_bomref_value"
 
 # Prerequisites
 

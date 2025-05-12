@@ -6,7 +6,7 @@
 #   short_name: LPOL3
 #   severity: error
 #   level: L1
-package mequal.leveling.L1.cyclonedx.LPOL3
+package mequal.policies.cyclonedx.LPOL3
 
 import rego.v1
 
