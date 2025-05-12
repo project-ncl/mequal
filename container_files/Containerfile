@@ -19,6 +19,7 @@ COPY ./config/ ./config/
 
 # get prodsec external policies
 RUN bash ./hack/download-external-bundles.sh \
+    && bash ./hack/manifest_revision.sh \
     && bash ./hack/annotations-generate.sh \
     && python ./hack/generate_bundle_info.py \
     && ./opa build -b $(ls -d -- ./policy/*/) -o ./bundle/mequal_policies.tar.gz
