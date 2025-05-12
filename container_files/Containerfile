@@ -8,8 +8,6 @@ RUN dnf install wget -y \
     && dnf install python -y \
     && wget https://github.com/open-policy-agent/opa/releases/download/v1.2.0/opa_linux_amd64 -O opa \
     && chmod +x ./opa \
-    && wget https://github.com/enterprise-contract/ec-cli/releases/download/v0.6.159/ec_linux_amd64 -O ece \
-    && chmod u+x ./ece \
     && mkdir ./bundle
 
 RUN adduser -u 1000 -U mequal -m
@@ -17,10 +15,10 @@ RUN adduser -u 1000 -U mequal -m
 USER root
 COPY ./policy/ ./policy/
 COPY ./hack/ ./hack/
+COPY ./config/ ./config/
 
 # get prodsec external policies
-RUN ./ece fetch policy -s github.com/project-ncl/mequal-prodsec-policies//policy/prodsec \
-    && rm ./ece \
+RUN bash ./hack/download-external-bundles.sh \
     && bash ./hack/annotations-generate.sh \
     && python ./hack/generate_bundle_info.py \
     && ./opa build -b $(ls -d -- ./policy/*/) -o ./bundle/mequal_policies.tar.gz
