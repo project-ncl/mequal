@@ -1,7 +1,9 @@
-#!/bin/bash
+#!/bin/env bash
 
 OUT_DIR=policy_annotations
-OPA=./opa
+if [ -z "$OPA" ]; then
+  export OPA="./opa"
+fi
 
 mkdir $OUT_DIR
 
