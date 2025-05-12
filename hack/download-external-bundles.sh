@@ -2,6 +2,7 @@
 
 # Generated with assistance from a large language model trained by Google.
 
+
 # Exit immediately if a command exits with a non-zero status.
 set -e
 # Treat unset variables as an error when substituting.
