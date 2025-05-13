@@ -1,2 +1,19 @@
 build
 node_modules
+
+# Ignore everything in the policy directory to not commit external policy bundles
+policy/*
+
+# But do NOT ignore the core Mequal bundles
+!policy/main
+!policy/mequal
+
+# Ignore auto-generated policy metadata object
+policy/main/main/data/data.json
+
+# Ignore ec-cli and opa-cli binary if downloaded
+ec-cli
+opa-cli
+
+# Ignore the policy_annotations folder
+policy_annotations

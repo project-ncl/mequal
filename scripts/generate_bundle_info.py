@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Generated with assistance from a large language model trained by Google.
 
 import json

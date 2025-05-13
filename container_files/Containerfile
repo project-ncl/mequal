@@ -14,15 +14,17 @@ RUN dnf install wget -y \
 RUN adduser -u 1000 -U mequal -m
 
 USER root
-COPY ./policy/ ./policy/
-COPY ./hack/ ./hack/
+# only copy mequal and main bundles, the rest are external and should be fetched from the container itself
+COPY ./policy/mequal/ ./policy/mequal/
+COPY ./policy/main/ ./policy/main/
+COPY ./scripts/ ./scripts/
 COPY ./config/ ./config/
 
 # get prodsec external policies
-RUN bash ./hack/manifest_revision.sh $MANIFEST_REVISION \
-    && bash ./hack/download-external-bundles.sh \
-    && bash ./hack/annotations-generate.sh \
-    && python ./hack/generate_bundle_info.py \
+RUN bash ./scripts/manifest_revision.sh $MANIFEST_REVISION \
+    && bash ./scripts/download-external-bundles.sh \
+    && bash ./scripts/annotations-generate.sh \
+    && python ./scripts/generate_bundle_info.py \
     && ./opa build -b $(ls -d -- ./policy/*/) -o ./bundle/mequal_policies.tar.gz
 COPY ./container_files/cli-run.sh .
 COPY ./container_files/server-run.sh .
