@@ -7,8 +7,6 @@ WORKDIR /home/mequal
 RUN dnf install wget -y \
     && dnf install jq -y \
     && dnf install python -y \
-    && wget https://github.com/open-policy-agent/opa/releases/download/v1.2.0/opa_linux_amd64 -O opa \
-    && chmod +x ./opa \
     && mkdir ./bundle
 
 RUN adduser -u 1000 -U mequal -m
@@ -22,10 +20,11 @@ COPY ./config/ ./config/
 
 # get prodsec external policies
 RUN bash ./scripts/manifest_revision.sh $MANIFEST_REVISION \
+    && bash ./scripts/download-binaries.sh \
     && bash ./scripts/download-external-bundles.sh \
     && bash ./scripts/annotations-generate.sh \
     && python ./scripts/generate_bundle_info.py \
-    && ./opa build -b $(ls -d -- ./policy/*/) -o ./bundle/mequal_policies.tar.gz
+    && ./binaries/opa-cli build -b $(ls -d -- ./policy/*/) -o ./bundle/mequal_policies.tar.gz
 COPY ./container_files/cli-run.sh .
 COPY ./container_files/server-run.sh .
 

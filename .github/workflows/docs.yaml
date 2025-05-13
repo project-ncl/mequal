@@ -30,8 +30,6 @@ jobs:
         run: ./scripts/download-external-bundles.sh
 
       - name: Generate policy annotation objects using OPA
-        env:
-          OPA: "opa"
         run: ./scripts/annotations-generate.sh
 
       - name: Generate policy bundle metadata object from annotations

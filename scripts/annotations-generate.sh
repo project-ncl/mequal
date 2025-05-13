@@ -1,9 +1,7 @@
 #!/bin/env bash
 
 OUT_DIR=policy_annotations
-if [ -z "$OPA" ]; then
-  export OPA="./opa"
-fi
+OPA_CLI="./binaries/opa-cli"
 
 mkdir $OUT_DIR
 
@@ -16,7 +14,7 @@ for dir in ./policy/*/ ; do
     outfile="$OUT_DIR/inspection_${dirname}.json"
 
     echo "Inspecting annotations for: $dir and saving to $outfile"
-    $OPA inspect -f json -a "$dir" > "$outfile"
+    $OPA_CLI inspect -f json -a "$dir" > "$outfile"
     echo "---"
   fi
 done
