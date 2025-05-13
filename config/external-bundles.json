@@ -1,5 +1,10 @@
 [
     {
+        "name": "ec",
+        "description": "Helper functions for nice output, unit testing, and Conforma compatibility",
+        "uri": "github.com/project-ncl/mequal-helpers//ec"
+    },
+    {
         "name": "prodsec",
         "description": "Policy bundle related to TPA ingestion",
         "uri": "github.com/project-ncl/mequal-prodsec-policies//policy/prodsec"

@@ -27,18 +27,18 @@ jobs:
           version: 1.2.0
 
       - name: Download external policy bundles
-        run: ./hack/download-external-bundles.sh
+        run: ./scripts/download-external-bundles.sh
 
       - name: Generate policy annotation objects using OPA
         env:
           OPA: "opa"
-        run: ./hack/annotations-generate.sh
+        run: ./scripts/annotations-generate.sh
 
       - name: Generate policy bundle metadata object from annotations
-        run: python ./hack/generate_bundle_info.py
+        run: python ./scripts/generate_bundle_info.py
 
       - name: Generate policy documentation from metadata object
-        run: python ./hack/docs_policy_bundles.py
+        run: python ./scripts/docs_policy_bundles.py
 
       - name: Prepare dependencies
         run: npm ci --cache .npm --prefer-offline
