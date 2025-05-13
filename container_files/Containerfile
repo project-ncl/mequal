@@ -1,34 +1,58 @@
-FROM registry.access.redhat.com/ubi9/ubi@sha256:53d6c19d664f4f418ce5c823d3a33dbb562a2550ea249cf07ef10aa063ace38f
+# Stage 1: Builder
+# Use the original UBI9 image to build the policy bundle
+FROM registry.access.redhat.com/ubi9/ubi@sha256:53d6c19d664f4f418ce5c823d3a33dbb562a2550ea249cf07ef10aa063ace38f AS builder
 
 ARG MANIFEST_REVISION=latest
-EXPOSE 8181
 WORKDIR /home/mequal
 
-RUN dnf install wget -y \
-    && dnf install jq -y \
-    && dnf install python -y \
-    && mkdir ./bundle
+# Install build dependencies
+RUN dnf install -y wget jq python && \
+    dnf clean all && \
+    mkdir ./bundle
 
-RUN adduser -u 1000 -U mequal -m
+# USER root is default, no need to create 'mequal' user in builder unless build scripts require it for specific file ownership during build
 
-USER root
-# only copy mequal and main bundles, the rest are external and should be fetched from the container itself
+# Copy source files needed for the build
 COPY ./policy/mequal/ ./policy/mequal/
 COPY ./policy/main/ ./policy/main/
 COPY ./scripts/ ./scripts/
 COPY ./config/ ./config/
+# COPY ./binaries/ ./binaries/ # Only if opa-cli is pre-packaged, otherwise download-binaries.sh should handle it
 
-# get prodsec external policies
-RUN bash ./scripts/manifest_revision.sh $MANIFEST_REVISION \
-    && bash ./scripts/download-binaries.sh \
-    && bash ./scripts/download-external-bundles.sh \
-    && bash ./scripts/annotations-generate.sh \
-    && python ./scripts/generate_bundle_info.py \
-    && ./binaries/opa-cli build -b $(ls -d -- ./policy/*/) -o ./bundle/mequal_policies.tar.gz
+# Run build scripts to generate the bundle
+# Ensure download-binaries.sh fetches any necessary tools like opa-cli into a known location (e.g., ./binaries/opa-cli)
+RUN bash ./scripts/manifest_revision.sh $MANIFEST_REVISION && \
+    bash ./scripts/download-binaries.sh && \
+    bash ./scripts/download-external-bundles.sh && \
+    bash ./scripts/annotations-generate.sh && \
+    python ./scripts/generate_bundle_info.py && \
+    ./binaries/opa-cli build -b $(ls -d -- ./policy/*/) -o ./bundle/mequal_policies.tar.gz
+
+# Verify bundle creation (optional, good for debugging)
+RUN ls -l ./bundle/mequal_policies.tar.gz
+
+# Stage 2: Final runtime image
+FROM registry.access.redhat.com/ubi9/ubi-minimal@sha256:a50731d3397a4ee28583f1699842183d4d24fadcc565c4688487af9ee4e13a44 AS final
+
+# Set up working directory
+WORKDIR /home/mequal
+
+RUN microdnf install jq -y
+
+# Copy the policy bundle and opa cli binary from the builder stage
+COPY --from=builder /home/mequal/bundle/mequal_policies.tar.gz ./bundle/
+COPY --from=builder /home/mequal/binaries/opa-cli ./binaries/
+
+# Copy runtime scripts from the build context
+# Make sure these scripts are executable (chmod +x locally or add a RUN chmod +x command)
+# and use #!/bin/sh (or #!/bin/bash if bash is installed and needed)
 COPY ./container_files/cli-run.sh .
 COPY ./container_files/server-run.sh .
 
-RUN chown -R mequal:mequal /home/mequal
+# Expose the port OPA might listen on (as in original Dockerfile)
+EXPOSE 8181
 
-USER mequal
-CMD ["/bin/bash", "./cli-run.sh"]
+# Set the default command, same as the original Dockerfile
+# This will execute /home/mequal/cli-run.sh using /bin/sh
+# If you installed bash and need it, change to ["/bin/bash", "./cli-run.sh"]
+CMD ["/bin/sh", "./cli-run.sh"]
