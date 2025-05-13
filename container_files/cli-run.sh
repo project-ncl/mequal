@@ -8,7 +8,7 @@ if [ ! -s "./input.json" ]; then
     exit 1
 fi
 
-OPA=${PWD}/opa
+OPA=${PWD}/binaries/opa-cli
 BUNDLE_PATH=./bundle/mequal_policies.tar.gz
 POLICY_PATH=./policy
 

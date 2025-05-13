@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OPA=${PWD}/opa
+OPA=${PWD}/binaries/opa-cli
 BUNDLE_PATH=./bundle/mequal_policies.tar.gz
 POLICY_PATH=./policy
 
