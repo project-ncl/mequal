@@ -1,25 +1,8 @@
 #!/bin/bash
 
-# Initialize OPA variable
-export OPA=""
-
-# Check if opa binary exists in the current directory
-if [ -f "./opa" ]; then
-  OPA="./opa"
-# Check if opa binary is installed and in PATH
-elif command -v opa &> /dev/null; then
-  OPA="opa"
-else
-  # If opa is not found, print message and exit
-  echo "OPA binary not found."
-  echo "Please install the OPA binary from: https://github.com/open-policy-agent/opa/releases"
-  exit 1
-fi
-
-# If OPA is found, OPA variable is set. Print which OPA is being used.
-if [ -n "$OPA" ]; then
-  echo "Using OPA from: $OPA"
-fi
+# Download OPA and EC CLI Binaries
+echo "Downloading OPA and EC CLI binaries to ./binaries/ ..."
+bash ./scripts/download-binaries.sh
 
 # Run the annotations generation script
 echo "Running ./scripts/annotations-generate.sh..."
