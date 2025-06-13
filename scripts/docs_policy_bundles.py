@@ -114,7 +114,7 @@ def generate_asciidoc(data):
     return "\n".join(asciidoc_lines)
 
 def main():
-    input_filename = './bundle/bundle_metadata.json'
+    input_filename = './policy/main/main/data/data.json'
     output_filename = './docs/modules/policies/pages/index.adoc'
 
     try:
